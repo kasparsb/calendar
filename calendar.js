@@ -1,8 +1,8 @@
 var monthStructure = require('./monthStructure');
-var createDomElement = require('./createDomElement');
+var monthDomElement = require('./monthDomElement');
 
 module.exports = {
     calendar: function(date) {
-        return createDomElement(monthStructure(date));
+        return monthDomElement(monthStructure(date), date);
     }
 }

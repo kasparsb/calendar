@@ -5,15 +5,14 @@ function monthStructure(date) {
         date = new Date();
     }
 
-    var s = [];
-    var start = 1;
-    
+    var s = [], start = 1, d = new Date(date.getTime());
+
     // Veidojam struktūru ar 6 nedēļām
     for (var i = 0; i < 6; i++) {
         
-        date.setDate(start)
+        d.setDate(start)
 
-        s.push(weekStructure(date))
+        s.push(weekStructure(d))
 
         start += 7;
     }

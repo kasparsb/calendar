@@ -1,23 +1,26 @@
-var createDomDayElement = require('./createDomDayElement');
+var dayDomElement = require('./dayDomElement');
+var isSameMonth = require('./isSameMonth');
+var isLowerMonthThan = require('./isLowerMonthThan');
+var isHigherMonthThan = require('./isHigherMonthThan');
 
-function addCssClasses(el, s) {
+function addCssClasses(el, date, currentDate) {
 
     var c = ['calendar__date'];
-    
-    if (s.prevMonth) {
+
+    if (isSameMonth(date, currentDate)) {
+        c.push('calendar__date--currentmonth');
+    }
+    else if (isLowerMonthThan(date, currentDate)) {
         c.push('calendar__date--prevmonth');
     }
-    else if (s.nextMonth) {
+    else if (isHigherMonthThan(date, currentDate)) {
         c.push('calendar__date--nextmonth');
-    }
-    else if (s.currMonth) {
-        c.push('calendar__date--currentmonth');
     }
 
     el.className = c.join(' ');
 }
 
-function createDomElement(monthStructure) {
+function createDomElement(monthStructure, currentDate) {
     var el = document.createElement('div'), dayEl, weekEl;
     el.className = 'calendar';
 
@@ -28,10 +31,10 @@ function createDomElement(monthStructure) {
 
         for (var d = 0; d < monthStructure[w].length; d++) {
 
-            dayEl = createDomDayElement(monthStructure[w][d].date);
+            dayEl = dayDomElement(monthStructure[w][d]);
 
             // Uzstādām dažādas css klases, kas raksturo datumu
-            addCssClasses(dayEl, monthStructure[w][d])
+            addCssClasses(dayEl, monthStructure[w][d], currentDate)
 
             weekEl.appendChild(dayEl);
         }
