@@ -1,12 +1,1 @@
-.calendar__week {
-  overflow: hidden;
-}
-.calendar__date {
-  width: 40px;
-  height: 40px;
-  float: left;
-}
-.calendar__date--prevmonth,
-.calendar__date--nextmonth {
-  color: silver;
-}
+.calendar__week{overflow:hidden}.calendar__date{width:40px;height:40px;float:left}.calendar__date--prevmonth,.calendar__date--nextmonth{color:silver}
