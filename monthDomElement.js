@@ -22,7 +22,7 @@ function addCssClasses(el, date, currentDate) {
 
 function createDomElement(monthStructure, currentDate) {
     var el = document.createElement('div'), dayEl, weekEl;
-    el.className = 'calendar';
+    el.className = 'calendar__month';
 
     for (var w = 0; w < monthStructure.length; w++) {
 
