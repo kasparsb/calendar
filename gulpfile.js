@@ -12,7 +12,7 @@ var buffer = require('vinyl-buffer');
 var pkg = require('./package.json');
 
 var files = {
-    js: './calendar.js',
+    js: './js/calendar.js',
     less: './less/calendar.less',
     lesss: './less/**/*.less',
     dest: './build'
