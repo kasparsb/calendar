@@ -20,6 +20,18 @@
   height: 40px;
   line-height: 40px;
 }
+.calendar__slides {
+  position: relative;
+  height: 240px;
+  overflow: hidden;
+}
+.calendar__slide {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
 .calendar__week {
   overflow: hidden;
 }
