@@ -46,7 +46,7 @@ monthEl.prototype = {
     findDayByEl: function(el) {
         for (var i = 0; i < this.days.length; i++) {
             for (var j = 0; j < this.days[i].length; j++) {
-                if (el == this.days[i][j].el.getEl()) {
+                if (this.days[i][j].el.getEl().contains(el)) {
                     return this.days[i][j].data;
                 }    
             }
