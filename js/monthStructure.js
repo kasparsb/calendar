@@ -1,20 +1,22 @@
 var weekStructure = require('./weekStructure');
+var addDays = require('./addDays');
 
 function monthStructure(date) {
     if (typeof date == 'undefined') {
         date = new Date();
     }
 
-    var s = [], start = 1, d = new Date(date.getTime());
+    var s = [], d = new Date(date.getTime());
+
+    // Uzlieka mēneša sākumu
+    d.setDate(1)
 
     // Veidojam struktūru ar 6 nedēļām
     for (var i = 0; i < 6; i++) {
         
-        d.setDate(start)
-
         s.push(weekStructure(d))
 
-        start += 7;
+        d = addDays(d, 7);
     }
 
     return s;

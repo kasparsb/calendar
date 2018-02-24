@@ -1,16 +1,54 @@
+@import './variables';
+
 .calendar {
+
+    width: @dayHeight * 7;
+
+    &__switch {
+        text-align: center;
+        padding: 8px 0;
+    }
+
+    &__nav,
+    &__datecaption {
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    &__nav {
+        width: @navWidth;
+        height: @navHeight;
+        line-height: @navHeight;
+        text-align: center;
+    }
+
+    &__datecaption {
+        height: @dataCaptionHeight;
+        line-height: @dataCaptionHeight;
+    }
+
     &__week {
         overflow: hidden;
     }
 
     &__date {
-        width: 40px;
-        height: 40px;
+        width: @dayWidth;
+        height: @dayHeight;
+        line-height: @dayHeight;
+        text-align: center; 
+
+        cursor: pointer;
+
         float: left;
 
         &--prevmonth,
         &--nextmonth {
             color: silver
+        }
+
+        &--currdate {
+            background-color: blue;
+            color: #fff;
         }
     }
 }

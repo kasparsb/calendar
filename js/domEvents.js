@@ -11,13 +11,14 @@ function addEvent(obj, type, fn, params) {
 }
 
 function removeEvent(obj, type, fn, params) {
+    console.log('removeevent');
     params = (typeof params == 'undefined' ? false : params);
     if ( obj.detachEvent ) {
         obj.detachEvent( 'on'+type, obj[type+fn] );
         obj[type+fn] = null;
     }
     else {
-        obj.removeEventListener(type, fn, params);
+        console.log(obj.removeEventListener(type, fn, params));
     }
 }
 
