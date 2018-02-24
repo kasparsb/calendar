@@ -1,3 +1,5 @@
+var emptyElement = require('./emptyElement');
+
 function addCssClasses(el, date) {
 
     var c = ['calendar__date'];
@@ -21,13 +23,28 @@ function addCssClasses(el, date) {
     return el;
 }
 
+/**
+ * Noklusētais datuma formatētājs
+ */
+function defaultDateFormatter(date, currentEl) {
+    if (currentEl) {
+        currentEl.nodeValue = date.date.getDate()
+    }
+    else {
+        currentEl = document.createTextNode(date.date.getDate());
+    }
 
-function createDomDayElement(date) {
+    return currentEl;
+}
+
+function createDomDayElement(date, props) {
+    this.props = props;
+
     this.el = addCssClasses(document.createElement('div'), date);
     
-    this.dateTextNode = document.createTextNode(date.date.getDate());
-
-    this.el.appendChild(this.dateTextNode);
+    this.elContent = this.props.get('dateFormatter', defaultDateFormatter)(date, null);
+    
+    this.el.appendChild(this.elContent);
 }
 
 createDomDayElement.prototype = {
@@ -35,9 +52,16 @@ createDomDayElement.prototype = {
         return this.el;
     },
     setDate: function(date) {
-         addCssClasses(this.el, date);
+        addCssClasses(this.el, date);
 
-        this.dateTextNode.nodeValue = date.date.getDate()
+        var newElContent = this.props.get('dateFormatter', defaultDateFormatter)(date, this.elContent)
+
+        // Ja atgriezts cits elContent
+        if (!this.el.contains(newElContent)) {
+            this.elContent = newElContent;
+
+            emptyElement(this.el).appendChild(this.elContent)
+        }
     }
 }
 

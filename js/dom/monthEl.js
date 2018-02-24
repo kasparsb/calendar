@@ -3,8 +3,7 @@ var setMonthStructureDatesProps = require('../setMonthStructureDatesProps');
 
 var dayEl = require('./dayEl');
 
-function monthEl(date) {
-
+function monthEl(date, props) {
     var monthStructure = setMonthStructureDatesProps(getMonthStructure(date), date)
 
     this.el = document.createElement('div');
@@ -26,7 +25,7 @@ function monthEl(date) {
 
             this.days[w][d] = {
                 data: monthStructure[w][d],
-                el: new dayEl(monthStructure[w][d])
+                el: new dayEl(monthStructure[w][d], props)
             }
 
             // Uzstādām dažādas css klases, kas raksturo datumu

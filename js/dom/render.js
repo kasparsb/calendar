@@ -1,24 +1,27 @@
 var domEvents = require('../domEvents');
 var addMonths = require('../addMonths');
 var cloneDate = require('../cloneDate');
+var properties = require('../properties');
 
 var dateSwitchEl = require('./dateSwitchEl');
 var monthEl = require('./monthEl');
 
 
-function render(currentDate) {
+function render(date, props) {
     this.events = this.prepareEvents([
         'dateclick', 'prevclick', 'nextclick', 'datecaptionclick'
     ]);
 
-    this.date = cloneDate(currentDate);
+    this.props = new properties(props);
+
+    this.date = cloneDate(date);
 
     this.el = document.createElement('div');
 
     this.el.className = 'calendar';
 
-    this.dateSwitch = new dateSwitchEl(currentDate);
-    this.month = new monthEl(currentDate);
+    this.dateSwitch = new dateSwitchEl(this.date, this.props);
+    this.month = new monthEl(this.date, this.props);
 
     this.el.appendChild(this.dateSwitch.getEl());
     this.el.appendChild(this.month.el);

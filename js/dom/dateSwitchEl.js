@@ -37,14 +37,16 @@ function formatDate(date) {
     return date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()
 }
 
-function dateSwitchDomElement(currentDate) {
+function dateSwitchDomElement(date, props) {
     
+    this.props = props;
+
     this.el = document.createElement('div');
     
     this.navPrev = navPrev();
     this.navNext = navNext();
-    this.dateCaptionTextNode = dateCaptionTextNode(currentDate)
-    this.dateCaption = dateCaption(currentDate, this.dateCaptionTextNode);
+    this.dateCaptionTextNode = dateCaptionTextNode(date)
+    this.dateCaption = dateCaption(date, this.dateCaptionTextNode);
     
     this.el.className = 'calendar__switch';
 
