@@ -1,5 +1,6 @@
 var getMonthStructure = require('../monthStructure');
 var setMonthStructureDatesProps = require('../setMonthStructureDatesProps');
+var each2d = require('../each2d');
 
 var dayEl = require('./dayEl');
 
@@ -55,14 +56,13 @@ monthEl.prototype = {
         return false;
     },
     setDate: function(date) {
-        var monthStructure = setMonthStructureDatesProps(getMonthStructure(date), date)
+        
+        var mthis = this;
 
-        for (var w = 0; w < monthStructure.length; w++) {
-            for (var d = 0; d < monthStructure[w].length; d++) {
-                this.days[w][d].data = monthStructure[w][d];
-                this.days[w][d].el.setDate(monthStructure[w][d])
-            }
-        }
+        each2d(setMonthStructureDatesProps(getMonthStructure(date), date), function(item, w, d){
+            mthis.days[w][d].data = item;
+            mthis.days[w][d].el.setDate(item)
+        })
     }
 }
 
