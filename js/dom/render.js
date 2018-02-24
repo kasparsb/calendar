@@ -5,9 +5,16 @@ var properties = require('../properties');
 
 var dateSwitchEl = require('./dateSwitchEl');
 var monthEl = require('./monthEl');
+var months = require('./months');
+
+var collection = require('./jQueryCollection');
+
+var infinityswipe = require('infinityswipe');
 
 
 function render(date, props) {
+    var mthis = this;
+
     this.events = this.prepareEvents([
         'dateclick', 'prevclick', 'nextclick', 'datecaptionclick'
     ]);
@@ -17,14 +24,39 @@ function render(date, props) {
     this.date = cloneDate(date);
 
     this.el = document.createElement('div');
-
     this.el.className = 'calendar';
 
+    
     this.dateSwitch = new dateSwitchEl(this.date, this.props);
-    this.month = new monthEl(this.date, this.props);
-
     this.el.appendChild(this.dateSwitch.getEl());
-    this.el.appendChild(this.month.el);
+
+
+    this.slidesEl = document.createElement('div');
+    this.slidesEl.className = 'calendar__slides';
+    this.el.appendChild(this.slidesEl);
+
+    // Slide elements
+    this.slideEls = new collection();
+
+    for (var si = 0; si < 5; si++) {
+        var sel = document.createElement('div');
+        sel.className = 'calendar__slide';
+        this.slidesEl.appendChild(sel);
+        this.slideEls.push(sel);
+    }
+    
+
+
+    this.months = new months();
+
+    // this.months.push(new monthEl(this.date, this.props));
+    // this.months.push(new monthEl(addMonths(this.date, 1), this.props));
+    // // Append each month el
+    // this.months.each(function(month){
+    //     mthis.el.appendChild(month.el);
+    // })
+
+    this.initInfinitySwipe();
 
     this.setEvents('add');
 }
@@ -37,7 +69,7 @@ render.prototype = {
 
             var t = domEvents.eventTarget(ev);
             
-            var day = mthis.month.findDayByEl(t);
+            var day = mthis.months.findDayByEl(t);
             if (day) {
 
                 mthis.setDate(day.date);
@@ -70,6 +102,17 @@ render.prototype = {
         else {
             domEvents.removeEvent(this.el, 'click', click);
         }
+
+
+        this.infty.onSlideAdd(function(index, el){
+            //console.log(index, el);
+
+            var m = new monthEl(addMonths(mthis.date, index), mthis.props);
+            mthis.months.push(m);
+            
+            el.appendChild(m.el);
+            
+        });
     },
 
     prepareEvents: function(eventNames) {
@@ -92,7 +135,6 @@ render.prototype = {
      * Fire events attached callbacks
      */
     fire: function(eventName, args) {
-        console.log('fire', eventName, args)
         for (var i in this.events[eventName]) {
             this.events[eventName][i].apply(this, args);
         }
@@ -107,8 +149,29 @@ render.prototype = {
      */
     setDate: function(date) {
         this.date = cloneDate(date);
-        this.dateSwitch.setDate(date)
-        this.month.setDate(date)
+        this.dateSwitch.setDate(date);
+
+        var s = 0;
+        this.months.each(function(month){
+
+            if (s == 0) {
+                month.setDate(date);
+            }
+            else {
+                month.setDate(addMonths(date, s));
+            }
+            
+
+            s++;
+        })
+    },
+
+    initInfinitySwipe: function() {
+        this.infty = new infinityswipe(this.slidesEl, this.slideEls)
+
+        this.infty.onSlideAdd(function(index, el){
+            console.log(index, el);
+        });
     },
 
     destroy: function() {
