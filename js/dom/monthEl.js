@@ -1,6 +1,7 @@
 var getMonthStructure = require('../monthStructure');
 var setMonthStructureDatesProps = require('../setMonthStructureDatesProps');
 var each2d = require('../each2d');
+var find2d = require('../find2d');
 
 var dayEl = require('./dayEl');
 
@@ -45,15 +46,11 @@ monthEl.prototype = {
         return this.days
     },
     findDayByEl: function(el) {
-        for (var i = 0; i < this.days.length; i++) {
-            for (var j = 0; j < this.days[i].length; j++) {
-                if (this.days[i][j].el.getEl().contains(el)) {
-                    return this.days[i][j].data;
-                }    
-            }
-        }
-
-        return false;
+        return find2d(this.days, function(item){
+            return item.el.getEl().contains(el)
+        }, function(foundItem){
+            return foundItem.data;
+        })
     },
     setDate: function(date) {
         
