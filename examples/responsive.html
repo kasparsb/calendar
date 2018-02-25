@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
+    <title>Basic calendar</title>
+
+    <link rel="stylesheet" href="../build/calendar.min.css" type="text/css" />
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 40px auto 0;
+        }
+        .calendar {
+            width: auto;
+        }
+        .calendar__slides {
+            height: auto;
+            padding-bottom: 100%
+        }
+        .calendar__slide {
+            height: auto;
+        }
+        .calendar__date {
+            width: 14.285714285714285714285714285714%;
+            height: auto;
+            box-sizing: border-box;
+            border-right: 1px solid silver;
+            border-bottom: 1px solid silver;
+        }
+        .calendar__month {
+            border-left: 1px solid silver;
+            border-top: 1px solid silver;
+        }
+        .date-w {
+            padding-bottom: 100%;
+            position: relative;
+        }
+        .date {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            transform: translate(0,-50%);
+
+            line-height: normal;
+        }
+    </style>
+</head>
+<body>
+    <div class="container"></div>
+
+    <script src="../build/calendar.min.js"></script>
+    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+
+        (function($){
+
+            function strpad(str, length, pad) {
+                str = str+'';
+                while (str.length < length) {
+                    str = pad+str
+                }
+                return str;
+            }
+
+            function create() {
+                
+                return new window.webit.calendar.dom(new Date(), {
+                    monthDayFormatter: function(date, currentEl) {
+                        if (currentEl) {
+                            $(currentEl).find('.date').html(date.date.getDate());
+                        }
+                        else {
+                            currentEl = $('<div class="date-w" />').append(
+                                $('<div class="date" />').html(date.date.getDate())
+                            ).get(0);
+                        }
+
+                        return currentEl;
+                    },
+                    fullDateFormatter: function(date) {
+                        return strpad(date.getDate(), 2, '0')+'.'+(strpad(date.getMonth()+1, 2, '0'))+'.'+date.getFullYear()
+                    }
+                })
+            }
+
+            
+            var calendar = create();
+            $('.container').append(calendar.getEl())
+
+        })(jQuery)
+    </script>
+</body>
+</html>
