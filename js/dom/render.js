@@ -7,7 +7,7 @@ var dateSwitchEl = require('./dateSwitchEl');
 var monthEl = require('./monthEl');
 var months = require('./months');
 
-var collection = require('./jQueryCollection');
+var emptyElement = require('./emptyElement');
 
 var infinityswipe = require('infinityswipe');
 
@@ -36,9 +36,9 @@ function render(date, props) {
     this.el.appendChild(this.slidesEl);
 
     // Slide elements
-    this.slideEls = new collection();
+    this.slideEls = [];
 
-    for (var si = 0; si < 5; si++) {
+    for (var si = 0; si < 10; si++) {
         var sel = document.createElement('div');
         sel.className = 'calendar__slide';
         this.slidesEl.appendChild(sel);
@@ -46,15 +46,8 @@ function render(date, props) {
     }
     
 
-
+    // Mēnešu elementu kolekcija
     this.months = new months();
-
-    // this.months.push(new monthEl(this.date, this.props));
-    // this.months.push(new monthEl(addMonths(this.date, 1), this.props));
-    // // Append each month el
-    // this.months.each(function(month){
-    //     mthis.el.appendChild(month.el);
-    // })
 
     this.initInfinitySwipe();
 
@@ -78,13 +71,13 @@ render.prototype = {
             }
             else if (mthis.dateSwitch.isNavPrev(t)) {
 
-                mthis.setDate(addMonths(mthis.date, -1));
+                mthis.infty.prevSlide();
 
                 mthis.fire('prevclick', []);
             }
             else if (mthis.dateSwitch.isNavNext(t)) {
 
-                mthis.setDate(addMonths(mthis.date, 1));
+                mthis.infty.nextSlide();
 
                 mthis.fire('nextclick', []);
             }
@@ -103,15 +96,12 @@ render.prototype = {
             domEvents.removeEvent(this.el, 'click', click);
         }
 
+        this.infty.onChange(function(){
+            mthis.handleSlideChange();
+        })
 
         this.infty.onSlideAdd(function(index, el){
-            //console.log(index, el);
-
-            var m = new monthEl(addMonths(mthis.date, index), mthis.props);
-            mthis.months.push(m);
-            
-            el.appendChild(m.el);
-            
+            mthis.handleSlideAdd(index, el)
         });
     },
 
@@ -151,27 +141,45 @@ render.prototype = {
         this.date = cloneDate(date);
         this.dateSwitch.setDate(date);
 
-        var s = 0;
+        var mthis = this;
+        // Jānomaina datums (tikai date daļa) visos kalendāros
         this.months.each(function(month){
-
-            if (s == 0) {
-                month.setDate(date);
-            }
-            else {
-                month.setDate(addMonths(date, s));
-            }
-            
-
-            s++;
+            month.changeMonthDate(mthis.date.getDate())
         })
     },
 
-    initInfinitySwipe: function() {
-        this.infty = new infinityswipe(this.slidesEl, this.slideEls)
+    handleSlideAdd: function(index, el) {
+        // Pārbaudām vai slide elementā jau ir mēneša elements
+        var month = this.months.findMonthByConainer(el);
 
-        this.infty.onSlideAdd(function(index, el){
-            console.log(index, el);
-        });
+        if (!month) {
+            month = this.months.push(new monthEl(addMonths(this.inftySlidesDate, index), this.props));
+        }
+        else {
+            month.setDate(addMonths(this.inftySlidesDate, index))
+        }
+
+        emptyElement(el).appendChild(month.el);
+    },
+
+    handleSlideChange: function() {
+        var current = this.infty.getCurrent();
+        var month = this.months.findMonthByConainer(current.el);
+
+        this.setDate(month.getDate())
+    },
+
+    initInfinitySwipe: function() {
+        /**
+         * Šis datums tiks izmantots, lai uzstādītu slaidos datumu
+         * Slaidiem ir offset no pirmā slide. Šim datuma tiks likts klāt
+         * slaida offset kā mēnesis un tādā veidā zināšu 
+         * kādu mēnesi renderēt attiecīgajā slaidā. 
+         * Šim datumam nekad nevajadzētu mainīties gadam un mēnesim.
+         * Datuma daļa (dd) var mainīties atkarībā no izvēlētā
+         */
+        this.inftySlidesDate = cloneDate(this.date);
+        this.infty = new infinityswipe(this.slidesEl, this.slideEls)
     },
 
     destroy: function() {

@@ -13,4 +13,4 @@ function find(arr, cb, foundItemCb) {
     return false;
 }
 
-module.exports = find2d;
+module.exports = find;
