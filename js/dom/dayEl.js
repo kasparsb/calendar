@@ -18,6 +18,9 @@ function addCssClasses(el, date) {
         c.push('calendar__date--currdate');
     }
 
+    // Weekday
+    c.push('calendar__date--wd-'+date.dateProps.weekDay)
+
     el.className = c.join(' ');
 
     return el;
