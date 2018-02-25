@@ -24,8 +24,16 @@
 
         (function($){
 
+            function strpad(str, length, pad) {
+                str = str+'';
+                while (str.length < length) {
+                    str = pad+str
+                }
+                return str;
+            }
+
             var calendar = new window.webit.calendar.dom(new Date(), {
-                dateFormatter: function(date, currentEl) {
+                monthDayFormatter: function(date, currentEl) {
                     if (currentEl) {
                         $(currentEl).html(date.date.getDate());
                     }
@@ -34,6 +42,9 @@
                     }
 
                     return currentEl;
+                },
+                fullDateFormatter: function(date) {
+                    return strpad(date.getDate(), 2, '0')+'.'+(strpad(date.getMonth()+1, 2, '0'))+'.'+date.getFullYear()
                 }
             })
 
