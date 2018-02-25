@@ -7,11 +7,14 @@
 
     <link rel="stylesheet" href="../build/calendar.min.css" type="text/css" />
     <style>
-    
+        .container2 {
+            margin: 80px 0;
+        }
     </style>
 </head>
 <body>
     <div class="container"></div>
+    <div class="container2"></div>
 
     
     <button type="button" class="create">Create</button>
@@ -24,6 +27,8 @@
 
         (function($){
 
+            var calendar1, calendar2;
+
             function strpad(str, length, pad) {
                 str = str+'';
                 while (str.length < length) {
@@ -32,40 +37,51 @@
                 return str;
             }
 
-            var calendar = new window.webit.calendar.dom(new Date(), {
-                monthDayFormatter: function(date, currentEl) {
-                    if (currentEl) {
-                        $(currentEl).html(date.date.getDate());
+            function create($container) {
+                
+                var c = new window.webit.calendar.dom(new Date(), {
+                    monthDayFormatter: function(date, currentEl) {
+                        if (currentEl) {
+                            $(currentEl).html(date.date.getDate());
+                        }
+                        else {
+                            currentEl = $('<div class="date-w" />').html(date.date.getDate()).get(0);
+                        }
+
+                        return currentEl;
+                    },
+                    fullDateFormatter: function(date) {
+                        return strpad(date.getDate(), 2, '0')+'.'+(strpad(date.getMonth()+1, 2, '0'))+'.'+date.getFullYear()
                     }
-                    else {
-                        currentEl = $('<div class="date-w" />').html(date.date.getDate()).get(0);
-                    }
+                })
 
-                    return currentEl;
-                },
-                fullDateFormatter: function(date) {
-                    return strpad(date.getDate(), 2, '0')+'.'+(strpad(date.getMonth()+1, 2, '0'))+'.'+date.getFullYear()
-                }
-            })
+                $container.append(c.getEl())
 
-            $('.container').append(calendar.getEl())
+                return c;
+            }
 
+            
+            calendar1 = create($('.container'));
+            calendar2 = create($('.container2'));
 
             $(document).on('click', '.create', function(ev){
                 ev.preventDefault();
 
-                if (!calendar) {
-                    calendar = window.webit.calendar.dom(new Date())
-                    $('.container').append(calendar.getEl())
-                }
+                calendar1 = create($('.container'));
+                calendar2 = create($('.container2'));
             })
 
             $(document).on('click', '.destroy', function(ev){
                 ev.preventDefault();
 
-                if (calendar) {
-                    calendar.destroy();
-                    calendar = null;
+                if (calendar1) {
+                    calendar1.destroy();
+                    calendar1 = null;
+                }
+
+                if (calendar2) {
+                    calendar2.destroy();
+                    calendar2 = null;
                 }
             })
 
