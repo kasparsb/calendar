@@ -2,6 +2,9 @@ var domEvents = require('../domEvents');
 var addMonths = require('../addMonths');
 var cloneDate = require('../cloneDate');
 var properties = require('../properties');
+var isLowerMonthThan = require('../isLowerMonthThan');
+var isHigherMonthThan = require('../isHigherMonthThan');
+var isSameMonth = require('../isSameMonth');
 
 var dateSwitchEl = require('./dateSwitchEl');
 var monthEl = require('./monthEl');
@@ -64,10 +67,7 @@ render.prototype = {
             
             var day = mthis.months.findDayByEl(t);
             if (day) {
-
-                mthis.setDate(day.date);
-
-                mthis.fire('dateclick', [day.date]);
+                mthis.handleMonthDayClick(day)
             }
             else if (mthis.dateSwitch.isNavPrev(t)) {
 
@@ -138,14 +138,37 @@ render.prototype = {
      * Uzstādām jaunu datumu
      */
     setDate: function(date) {
+        var mthis = this;
+        
         this.date = cloneDate(date);
         this.dateSwitch.setDate(date);
 
-        var mthis = this;
         // Jānomaina datums (tikai date daļa) visos kalendāros
         this.months.each(function(month){
             month.changeMonthDate(mthis.date.getDate())
         })
+    },
+
+    handleMonthDayClick: function(day) {
+        var mthis = this;
+
+        // Pārbaudām vai vajag pārslēgties uz prev/next mēnesi
+        if (!isSameMonth(this.date, day.date)) {
+            if (isLowerMonthThan(day.date, this.date)) {
+                setTimeout(function(){
+                    mthis.infty.prevSlide();
+                }, 2)
+            }
+            else if (isHigherMonthThan(day.date, this.date)) {
+                setTimeout(function(){
+                    mthis.infty.nextSlide();
+                }, 2)
+            }
+        }
+
+        this.setDate(day.date);
+
+        this.fire('dateclick', [day.date]);
     },
 
     handleSlideAdd: function(index, el) {
