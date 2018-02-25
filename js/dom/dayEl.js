@@ -26,7 +26,7 @@ function addCssClasses(el, date) {
 /**
  * Noklusētais datuma formatētājs
  */
-function defaultDateFormatter(date, currentEl) {
+function defaultMonthDayFormatter(date, currentEl) {
     if (currentEl) {
         currentEl.nodeValue = date.date.getDate()
     }
@@ -42,7 +42,7 @@ function createDomDayElement(date, props) {
 
     this.el = addCssClasses(document.createElement('div'), date);
     
-    this.elContent = this.props.get('dateFormatter', defaultDateFormatter)(date, null);
+    this.elContent = this.props.get('monthDayFormatter', defaultMonthDayFormatter)(date, null);
     
     this.el.appendChild(this.elContent);
 }
@@ -54,7 +54,7 @@ createDomDayElement.prototype = {
     setDate: function(date) {
         addCssClasses(this.el, date);
 
-        var newElContent = this.props.get('dateFormatter', defaultDateFormatter)(date, this.elContent)
+        var newElContent = this.props.get('monthDayFormatter', defaultMonthDayFormatter)(date, this.elContent)
 
         // Ja atgriezts cits elContent
         if (!this.el.contains(newElContent)) {

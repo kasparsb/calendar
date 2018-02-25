@@ -29,11 +29,11 @@ function dateCaption(date, captionTextNode) {
     return el;
 }
 
-function dateCaptionTextNode(date) {
-    return document.createTextNode(formatDate(date))
+function dateCaptionTextNode(date, props) {
+    return document.createTextNode(props.get('fullDateFormatter', defaultFullDateFormatter)(date))
 }
 
-function formatDate(date) {
+function defaultFullDateFormatter(date) {
     return date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()
 }
 
@@ -45,7 +45,7 @@ function dateSwitchDomElement(date, props) {
     
     this.navPrev = navPrev();
     this.navNext = navNext();
-    this.dateCaptionTextNode = dateCaptionTextNode(date)
+    this.dateCaptionTextNode = dateCaptionTextNode(date, this.props)
     this.dateCaption = dateCaption(date, this.dateCaptionTextNode);
     
     this.el.className = 'calendar__switch';
@@ -81,7 +81,7 @@ dateSwitchDomElement.prototype = {
     },
 
     setDate: function(date) {
-        this.dateCaptionTextNode.nodeValue = formatDate(date)
+        this.dateCaptionTextNode.nodeValue = this.props.get('fullDateFormatter', defaultFullDateFormatter)(date)
     }
 }
 
