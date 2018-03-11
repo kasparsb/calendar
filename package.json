@@ -2,7 +2,7 @@
   "name": "calendar",
   "version": "0.0.1",
   "private": true,
-  "main": "infty.js",
+  "main": "js/calendar.js",
   "devDependencies": {
     "gulp": "^3.8.8",
     "gulp-rename": "^1.2.2",
