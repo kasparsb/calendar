@@ -1,6 +1,6 @@
 {
   "name": "calendar",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "main": "js/calendar.js",
   "devDependencies": {
@@ -15,8 +15,6 @@
     "vinyl-buffer": "^1.0.0"
   },
   "dependencies": {
-    "infinityswipe": "git+https://github.com/kasparsb/infinityswipe.git",
-    "swipe": "git+https://github.com/kasparsb/swipe.git",
-    "stepper": "git+https://github.com/kasparsb/stepper.git"
+    "infinityswipe": "git+https://github.com/kasparsb/infinityswipe.git"
   }
 }

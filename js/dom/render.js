@@ -202,7 +202,9 @@ render.prototype = {
          * Datuma daļa (dd) var mainīties atkarībā no izvēlētā
          */
         this.inftySlidesDate = cloneDate(this.date);
-        this.infty = new infinityswipe(this.slidesEl, this.slideEls)
+        this.infty = new infinityswipe(this.slidesEl, this.slideEls, {
+            positionItems: true
+        })
     },
 
     destroy: function() {
