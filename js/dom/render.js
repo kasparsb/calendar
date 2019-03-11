@@ -149,6 +149,10 @@ render.prototype = {
         })
     },
 
+    getMonthByYearMonth: function(year, month) {
+        return this.months.findByYearMonth(year, month);
+    },
+
     handleMonthDayClick: function(day) {
         var mthis = this;
 
