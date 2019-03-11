@@ -32,6 +32,12 @@ months.prototype = {
         return find(this.months, function(item){
             return containerEl.contains(item.el)
         })
+    },
+
+    findByYearMonth: function(year, month) {
+        return find(this.months, function(item){
+            return item.getDate().getFullYear() == year && (item.getDate().getMonth()+1) == month
+        })
     }
 }
 
