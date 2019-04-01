@@ -7,6 +7,7 @@ var isHigherMonthThan = require('../isHigherMonthThan');
 var isSameMonth = require('../isSameMonth');
 
 var dateSwitchEl = require('./dateSwitchEl');
+var weekDaysEl = require('./weekDaysEl');
 var monthEl = require('./monthEl');
 var months = require('./months');
 
@@ -32,6 +33,9 @@ function render(date, props) {
     
     this.dateSwitch = new dateSwitchEl(this.date, this.props);
     this.el.appendChild(this.dateSwitch.getEl());
+
+    this.weekDays = new weekDaysEl(this.props);
+    this.el.appendChild(this.weekDays.getEl());
 
 
     this.slidesEl = document.createElement('div');
