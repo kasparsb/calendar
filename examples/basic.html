@@ -52,6 +52,12 @@
                     },
                     fullDateFormatter: function(date) {
                         return strpad(date.getDate(), 2, '0')+'.'+(strpad(date.getMonth()+1, 2, '0'))+'.'+date.getFullYear()
+                    },
+                    navNextFormatter: function() {
+                        return 'next'
+                    },
+                    navPrevFormatter: function() {
+                        return 'prev'
                     }
                 })
 
