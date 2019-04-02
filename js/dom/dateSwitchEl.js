@@ -1,3 +1,5 @@
+var isChildElement = require('../isChildElement');
+
 function navPrev(props) {
     var el = document.createElement('a');
     el.className = 'calendar__nav calendar__nav--prev';
@@ -91,10 +93,10 @@ dateSwitchDomElement.prototype = {
     },
 
     isNavPrev: function(el) {
-        return this.navPrev == el;
+        return (this.navPrev == el || isChildElement(el, this.navPrev));
     },
     isNavNext: function(el) {
-        return this.navNext == el;
+        return (this.navNext == el || isChildElement(el, this.navNext));
     },
     isDateCaption: function(el) {
         return this.dateCaption == el;
