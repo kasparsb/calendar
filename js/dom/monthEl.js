@@ -19,7 +19,7 @@ function monthEl(date, props) {
     for (var w = 0; w < monthStructure.length; w++) {
 
         weekEl = document.createElement('div');
-        weekEl.className = 'calendar__week';
+        weekEl = addClassNames(weekEl, monthStructure[w]);
 
         for (var d = 0; d < monthStructure[w].length; d++) {
 
@@ -38,6 +38,36 @@ function monthEl(date, props) {
 
         this.el.appendChild(weekEl);
     }
+}
+
+function addClassNames(weekEl, week) {
+    weekEl.className = 'calendar__week';
+
+    if (isAnyDay(week, 'prev')) {
+        weekEl.className += ' calendar__week--prevmonth';
+    }
+    if (isAnyDay(week, 'curr')) {
+        weekEl.className += ' calendar__week--currmonth';
+    }
+    if (isAnyDay(week, 'next')) {
+        weekEl.className += ' calendar__week--nextmonth';
+    }
+
+    return weekEl;
+}
+
+/**
+ * Nosakām vai padotajā nedēļā kaut viens datums ir 
+ * ar norādīto pazīmi. Vai visi datumi ir prev, curr vai next
+ */
+function isAnyDay(week, markName) {
+    // Ja kaut viena no dienu pazīmes nav true, tad return false
+    for (var i = 0; i < week.length; i++) {
+        if (week[i].dateProps[markName+'Month']) {
+            return true;
+        }
+    }
+    return false;
 }
 
 monthEl.prototype = {
