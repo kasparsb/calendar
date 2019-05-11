@@ -20,7 +20,19 @@ function render(date, props) {
     var mthis = this;
 
     this.events = this.prepareEvents([
-        'dateclick', 'prevclick', 'nextclick', 'datecaptionclick', 'slidechange'
+        'dateclick', 
+        
+        // Pogas next un prev click
+        'prevclick', 
+        'nextclick', 
+
+        'datecaptionclick', 
+
+        // Ja maina mēnesi ar swipe kustību, tad izpildās tikai šis
+        'slidechange', 
+
+        // Visu ielādēto slide events
+        'slideschange'
     ]);
 
     this.props = new properties(props);
@@ -104,9 +116,13 @@ render.prototype = {
             mthis.handleSlideChange();
         })
 
-        this.infty.onSlideAdd(function(index, el){
-            mthis.handleSlideAdd(index, el)
+        this.infty.onSlideAdd(function(index, el, slide){
+            mthis.handleSlideAdd(index, el, slide)
         });
+
+        this.infty.onSlidesChange(function(slides){
+            mthis.handleSlidesChange(slides);
+        })
     },
 
     prepareEvents: function(eventNames) {
@@ -179,7 +195,7 @@ render.prototype = {
         this.fire('dateclick', [day.date]);
     },
 
-    handleSlideAdd: function(index, el) {
+    handleSlideAdd: function(index, el, slide) {
         // Pārbaudām vai slide elementā jau ir mēneša elements
         var month = this.months.findMonthByConainer(el);
 
@@ -189,6 +205,9 @@ render.prototype = {
         else {
             month.setDate(addMonths(this.inftySlidesDate, index))
         }
+
+        //console.log('addslide', slide);
+        slide.setData('date', month.getDate());
 
         emptyElement(el).appendChild(month.el);
     },
@@ -200,6 +219,20 @@ render.prototype = {
         this.setDate(month.getDate())
 
         this.fire('slidechange', [month.getDate()]);
+    },
+
+    /**
+     * Tad, kad ir noformēti visi ielādētie kalendāru slides, tad
+     * palaižam event un tajā padodam visus ielādēto kalendāru mēnešus
+     */
+    handleSlidesChange: function(slides) {
+        var r = [];
+        for (var i = 0; i < slides.length; i++) {
+            // Ņemam tikai slide uzstādīto datumu
+            r.push(slides[i].getData('date'))
+        }
+
+        this.fire('slideschange', [r]);
     },
 
     initInfinitySwipe: function() {
