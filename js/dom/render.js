@@ -20,7 +20,7 @@ function render(date, props) {
     var mthis = this;
 
     this.events = this.prepareEvents([
-        'dateclick', 'prevclick', 'nextclick', 'datecaptionclick'
+        'dateclick', 'prevclick', 'nextclick', 'datecaptionclick', 'slidechange'
     ]);
 
     this.props = new properties(props);
@@ -198,6 +198,8 @@ render.prototype = {
         var month = this.months.findMonthByConainer(current.el);
 
         this.setDate(month.getDate())
+
+        this.fire('slidechange', [month.getDate()]);
     },
 
     initInfinitySwipe: function() {
