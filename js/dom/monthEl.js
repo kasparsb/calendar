@@ -13,9 +13,12 @@ function monthEl(date, props) {
 
     this.date = cloneDate(date);
 
+    // Datums, kurš kā izvēlētais
+    this.hightliteDate = null;
+
     this.days = [];
 
-    var weekEl, monthStructure = setMonthStructureDatesProps(getMonthStructure(this.date), this.date);
+    var weekEl, monthStructure = setMonthStructureDatesProps(getMonthStructure(this.date), this.date, this.hightliteDate);
     for (var w = 0; w < monthStructure.length; w++) {
 
         weekEl = document.createElement('div');
@@ -87,9 +90,9 @@ monthEl.prototype = {
             return foundItem.data;
         })
     },
-    applyDateChanges: function(date) {
+    applyDateChanges: function(date, highliteDate) {
         var mthis = this;
-        each2d(setMonthStructureDatesProps(getMonthStructure(date), date), function(item, w, d){
+        each2d(setMonthStructureDatesProps(getMonthStructure(date), date, highliteDate), function(item, w, d){
             mthis.days[w][d].data = item;
             mthis.days[w][d].el.setDate(item)
         })
@@ -97,10 +100,10 @@ monthEl.prototype = {
     setDate: function(date) {
         this.date = cloneDate(date);
 
-        this.applyDateChanges(this.date);
+        this.applyDateChanges(this.date, this.hightliteDate);
     },
     /**
-     * Nomainām tikai datuma (dd) daļu esošajā datumā
+     * Nomainām tikai datuma !!(dd) daļu esošajā datumā
      */
     changeMonthDate: function(date) {
         // Ja datuma daļa neatšķiras, tad neturpinām
@@ -108,9 +111,15 @@ monthEl.prototype = {
             return;
         }
 
+        // Neļaujam uzlikt lielāku datumu kā tekošajā mēnesī ir dienu
         this.date.setDate(Math.min(date, daysInMonth(this.date.getFullYear(), this.date.getMonth()+1)))
 
-        this.applyDateChanges(this.date);
+        this.applyDateChanges(this.date, this.hightliteDate);
+    },
+    setHightliteDate: function(date) {
+        this.hightliteDate = date;
+
+        this.applyDateChanges(this.date, this.hightliteDate);
     }
 }
 

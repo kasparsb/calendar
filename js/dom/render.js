@@ -4,6 +4,7 @@ var cloneDate = require('../cloneDate');
 var properties = require('../properties');
 var isLowerMonthThan = require('../isLowerMonthThan');
 var isHigherMonthThan = require('../isHigherMonthThan');
+var isSameDate = require('../isSameDate');
 var isSameMonth = require('../isSameMonth');
 
 var dateSwitchEl = require('./dateSwitchEl');
@@ -38,6 +39,7 @@ function render(date, props) {
     this.props = new properties(props);
 
     this.date = cloneDate(date);
+    this.highliteDate = cloneDate(date);
 
     this.el = document.createElement('div');
     this.el.className = 'calendar';
@@ -155,27 +157,75 @@ render.prototype = {
     },
 
     /**
-     * Uzstādām jaunu datumu
+     * Atzīmējam kalendārā aktīvo datumu
+     * aktīvais datums ir this.date
      */
-    setDate: function(date) {
-        var mthis = this;
-        
-        this.date = cloneDate(date);
-        this.dateSwitch.setDate(date);
+    setHighliteDate: function(date) {
+        this.highliteDate = cloneDate(date);
 
-        // Jānomaina datums (tikai date daļa) visos kalendāros
+        var mthis = this;
+        // Jānomaina tikai datuma daļa visos kalendāros
         this.months.each(function(month){
-            month.changeMonthDate(mthis.date.getDate())
+            month.setHightliteDate(mthis.highliteDate)
         })
     },
 
-    getMonthByYearMonth: function(year, month) {
+    /**
+     * Iekšējā setDate metode. Nepārbaudām vai ir jāpārkārto slaidi
+     */
+    _setDate: function(date) {
+        this.date = cloneDate(date);
+        this.dateSwitch.setDate(date);
+    },
+
+    /**
+     * Publiskā metode datuma uzstādīšanai
+     */
+    setDate: function(date) {
+        // Tas pats datums. Neko nedarām
+        if (isSameDate(this.date, date)) {    
+            return;
+        }
+
+        this._setDate(date);
+       
+        /**
+         * @todo Uztaisīt, lai gadījumā, ja uzstādāmā datuma
+         * slide ir pieejams, tad pārslēgots uz to nevis pārtaisītu
+         * visu kalendāru.
+         * Pašlaik, pēc infty.showSlide izsaukšanas pārslēdzoties
+         * uz prev ir metās kļūda no infty
+         */
+        this.infty.restart();
+
+        this.setHighliteDate(date);
+    },
+    
+
+    /**
+     * Return month element
+     * @param number Year
+     * @param number Month, 1 based
+     */
+    getMonth: function(year, month) {
         return this.months.findByYearMonth(year, month);
+    },
+
+    /**
+     * Return date elements. There could be more then one element
+     * because date is also in prev and next month slides
+     */
+    getDate: function(year, month, date) {
+
     },
 
     handleMonthDayClick: function(day) {
         var mthis = this;
 
+        /**
+         * @todo Varbūt vajag parametru ar kuru nosakām vai vajag pāršķirt mēnesi, jad
+         * ieklikšķināts nākošā mēneša dienā
+         */
         // Pārbaudām vai vajag pārslēgties uz prev/next mēnesi
         if (!isSameMonth(this.date, day.date)) {
             if (isLowerMonthThan(day.date, this.date)) {
@@ -190,7 +240,8 @@ render.prototype = {
             }
         }
 
-        this.setDate(day.date);
+        this._setDate(day.date);
+        this.setHighliteDate(day.date);
 
         this.fire('dateclick', [day.date]);
     },
@@ -206,7 +257,9 @@ render.prototype = {
             month.setDate(addMonths(this.inftySlidesDate, index))
         }
 
-        //console.log('addslide', slide);
+        // Uzstādām highliteDate
+        month.setHightliteDate(this.highliteDate)
+
         slide.setData('date', month.getDate());
 
         emptyElement(el).appendChild(month.el);
@@ -216,7 +269,7 @@ render.prototype = {
         var current = this.infty.getCurrent();
         var month = this.months.findMonthByConainer(current.el);
 
-        this.setDate(month.getDate())
+        this._setDate(month.getDate())
 
         this.fire('slidechange', [month.getDate()]);
     },

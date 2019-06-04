@@ -14,7 +14,10 @@ function addCssClasses(el, date) {
         c.push('calendar__date--nextmonth');
     }
 
-    if (date.dateProps.currDate) {
+    // if (date.dateProps.currDate) {
+    //     c.push('calendar__date--currdate');
+    // }
+    if (date.dateProps.highliteDate) {
         c.push('calendar__date--currdate');
     }
 
