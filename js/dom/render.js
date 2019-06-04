@@ -39,7 +39,8 @@ function render(date, props) {
     this.props = new properties(props);
 
     this.date = cloneDate(date);
-    this.highliteDate = cloneDate(date);
+    // Pēc noklusējuma datums nav highlite
+    this.highliteDate = null;
 
     this.el = document.createElement('div');
     this.el.className = 'calendar';
@@ -196,6 +197,7 @@ render.prototype = {
          * Pašlaik, pēc infty.showSlide izsaukšanas pārslēdzoties
          * uz prev ir metās kļūda no infty
          */
+        this.inftySlidesDate = cloneDate(this.date);
         this.infty.restart();
 
         this.setHighliteDate(date);
