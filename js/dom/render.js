@@ -184,9 +184,10 @@ render.prototype = {
      */
     setDate: function(date) {
         // Tas pats datums. Neko nedarām
-        if (isSameDate(this.date, date)) {    
-            return;
-        }
+        // Vajag iespēju force reset date
+        // if (isSameDate(this.date, date)) {
+        //     return;
+        // }
 
         this._setDate(date);
        
