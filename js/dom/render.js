@@ -304,7 +304,8 @@ render.prototype = {
          */
         this.inftySlidesDate = cloneDate(this.date);
         this.infty = new infinityswipe(this.slidesEl, this.slideEls, {
-            positionItems: this.props.get('positionSlides', true)
+            positionItems: this.props.get('positionSlides', true),
+            slidesPadding: this.props.get('slidesPadding', 0)
         })
     },
 
