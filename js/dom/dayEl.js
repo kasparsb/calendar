@@ -1,28 +1,28 @@
 var emptyElement = require('./emptyElement');
 
-function addCssClasses(el, date) {
+function addCssClasses(el, date, prefix) {
 
-    var c = ['calendar__date'];
+    var c = [prefix+'calendar__date'];
 
     if (date.dateProps.currMonth) {
-        c.push('calendar__date--currentmonth');
+        c.push(prefix+'calendar__date--currentmonth');
     }
     else if (date.dateProps.prevMonth) {
-        c.push('calendar__date--prevmonth');
+        c.push(prefix+'calendar__date--prevmonth');
     }
     else if (date.dateProps.nextMonth) {
-        c.push('calendar__date--nextmonth');
+        c.push(prefix+'calendar__date--nextmonth');
     }
 
     // if (date.dateProps.currDate) {
     //     c.push('calendar__date--currdate');
     // }
     if (date.dateProps.highliteDate) {
-        c.push('calendar__date--currdate');
+        c.push(prefix+'calendar__date--currdate');
     }
 
     // Weekday
-    c.push('calendar__date--wd-'+date.dateProps.weekDay)
+    c.push(prefix+'calendar__date--wd-'+date.dateProps.weekDay)
 
     el.className = c.join(' ');
 
@@ -45,11 +45,12 @@ function defaultMonthDayFormatter(date, currentEl) {
 
 function createDomDayElement(date, props) {
     this.props = props;
+    this.cssPrefix = this.props.get('cssPrefix', '');
 
-    this.el = addCssClasses(document.createElement('div'), date);
-    
+    this.el = addCssClasses(document.createElement('div'), date, this.cssPrefix);
+
     this.elContent = this.props.get('monthDayFormatter', defaultMonthDayFormatter)(date, null);
-    
+
     this.el.appendChild(this.elContent);
 }
 
@@ -58,7 +59,7 @@ createDomDayElement.prototype = {
         return this.el;
     },
     setDate: function(date) {
-        addCssClasses(this.el, date);
+        addCssClasses(this.el, date, this.cssPrefix);
 
         var newElContent = this.props.get('monthDayFormatter', defaultMonthDayFormatter)(date, this.elContent)
 

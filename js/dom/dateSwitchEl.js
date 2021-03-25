@@ -1,8 +1,10 @@
 var isChildElement = require('../isChildElement');
 
 function navPrev(props) {
+    this.cssPrefix = props.get('cssPrefix', '');
+
     var el = document.createElement('a');
-    el.className = 'calendar__nav calendar__nav--prev';
+    el.className = this.cssPrefix+'calendar__nav '+this.cssPrefix+'calendar__nav--prev';
 
     var c = props.get('navPrevFormatter', defaultNavPrevFormatter)()
 
@@ -19,7 +21,7 @@ function navPrev(props) {
 
 function navNext(props) {
     var el = document.createElement('a');
-    el.className = 'calendar__nav calendar__nav--next';
+    el.className = this.cssPrefix+'calendar__nav '+this.cssPrefix+'calendar__nav--next';
 
     var c = props.get('navNextFormatter', defaultNavNextFormatter)()
 
@@ -36,7 +38,7 @@ function navNext(props) {
 
 function dateCaption(date, captionTextNode) {
     var el = document.createElement('a');
-    el.className = 'calendar__datecaption';
+    el.className = this.cssPrefix+'calendar__datecaption';
 
     el.appendChild(captionTextNode);
 
@@ -60,17 +62,17 @@ function defaultNavNextFormatter() {
 }
 
 function dateSwitchDomElement(date, props) {
-    
+
     this.props = props;
 
     this.el = document.createElement('div');
-    
+
     this.navPrev = navPrev(this.props);
     this.navNext = navNext(this.props);
     this.dateCaptionTextNode = dateCaptionTextNode(date, this.props)
     this.dateCaption = dateCaption(date, this.dateCaptionTextNode);
-    
-    this.el.className = 'calendar__switch';
+
+    this.el.className = this.cssPrefix+'calendar__switch';
 
     this.el.appendChild(this.navPrev);
     this.el.appendChild(this.dateCaption);
@@ -81,7 +83,7 @@ dateSwitchDomElement.prototype = {
     getEl: function() {
         return this.el;
     },
-    
+
     getNavPrev: function() {
         return this.navPrev;
     },

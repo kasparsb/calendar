@@ -21,16 +21,16 @@ function render(date, props) {
     var mthis = this;
 
     this.events = this.prepareEvents([
-        'dateclick', 
-        
-        // Pogas next un prev click
-        'prevclick', 
-        'nextclick', 
+        'dateclick',
 
-        'datecaptionclick', 
+        // Pogas next un prev click
+        'prevclick',
+        'nextclick',
+
+        'datecaptionclick',
 
         // Ja maina mēnesi ar swipe kustību, tad izpildās tikai šis
-        'slidechange', 
+        'slidechange',
 
         // Visu ielādēto slide events
         'slideschange'
@@ -38,14 +38,16 @@ function render(date, props) {
 
     this.props = new properties(props);
 
+    this.cssPrefix = this.props.get('cssPrefix', '');
+
     this.date = cloneDate(date);
     // Pēc noklusējuma datums nav highlite
     this.highliteDate = null;
 
     this.el = document.createElement('div');
-    this.el.className = 'calendar';
+    this.el.className = this.cssPrefix+'calendar';
 
-    
+
     this.dateSwitch = new dateSwitchEl(this.date, this.props);
     this.el.appendChild(this.dateSwitch.getEl());
 
@@ -54,7 +56,7 @@ function render(date, props) {
 
 
     this.slidesEl = document.createElement('div');
-    this.slidesEl.className = 'calendar__slides';
+    this.slidesEl.className = this.cssPrefix+'calendar__slides';
     this.el.appendChild(this.slidesEl);
 
     // Slide elements
@@ -62,11 +64,11 @@ function render(date, props) {
 
     for (var si = 0; si < 10; si++) {
         var sel = document.createElement('div');
-        sel.className = 'calendar__slide';
+        sel.className = this.cssPrefix+'calendar__slide';
         this.slidesEl.appendChild(sel);
         this.slideEls.push(sel);
     }
-    
+
 
     // Mēnešu elementu kolekcija
     this.months = new months();
@@ -83,7 +85,7 @@ render.prototype = {
         function click(ev) {
 
             var t = domEvents.eventTarget(ev);
-            
+
             var day = mthis.months.findDayByEl(t);
             if (day) {
                 mthis.handleMonthDayClick(day)
@@ -190,7 +192,7 @@ render.prototype = {
         // }
 
         this._setDate(date);
-       
+
         /**
          * @todo Uztaisīt, lai gadījumā, ja uzstādāmā datuma
          * slide ir pieejams, tad pārslēgots uz to nevis pārtaisītu
@@ -203,7 +205,7 @@ render.prototype = {
 
         this.setHighliteDate(date);
     },
-    
+
 
     /**
      * Return month element
@@ -295,8 +297,8 @@ render.prototype = {
         /**
          * Šis datums tiks izmantots, lai uzstādītu slaidos datumu
          * Slaidiem ir offset no pirmā slide. Šim datuma tiks likts klāt
-         * slaida offset kā mēnesis un tādā veidā zināšu 
-         * kādu mēnesi renderēt attiecīgajā slaidā. 
+         * slaida offset kā mēnesis un tādā veidā zināšu
+         * kādu mēnesi renderēt attiecīgajā slaidā.
          * Šim datumam nekad nevajadzētu mainīties gadam un mēnesim.
          * Datuma daļa (dd) var mainīties atkarībā no izvēlētā
          */

@@ -8,8 +8,10 @@ var daysInMonth = require('../daysInMonth');
 var dayEl = require('./dayEl');
 
 function monthEl(date, props) {
+    this.cssPrefix = props.get('cssPrefix', '');
+
     this.el = document.createElement('div');
-    this.el.className = 'calendar__month';
+    this.el.className = this.cssPrefix+'calendar__month';
 
     this.date = cloneDate(date);
 
@@ -17,6 +19,7 @@ function monthEl(date, props) {
     this.hightliteDate = null;
 
     this.days = [];
+
 
     var weekEl, monthStructure = setMonthStructureDatesProps(getMonthStructure(this.date), this.date, this.hightliteDate);
     for (var w = 0; w < monthStructure.length; w++) {
@@ -44,23 +47,23 @@ function monthEl(date, props) {
 }
 
 function addClassNames(weekEl, week) {
-    weekEl.className = 'calendar__week';
+    weekEl.className = this.cssPrefix+'calendar__week';
 
     if (isAnyDay(week, 'prev')) {
-        weekEl.className += ' calendar__week--prevmonth';
+        weekEl.className += ' '+this.cssPrefix+'calendar__week--prevmonth';
     }
     if (isAnyDay(week, 'curr')) {
-        weekEl.className += ' calendar__week--currmonth';
+        weekEl.className += ' '+this.cssPrefix+'calendar__week--currmonth';
     }
     if (isAnyDay(week, 'next')) {
-        weekEl.className += ' calendar__week--nextmonth';
+        weekEl.className += ' '+this.cssPrefix+'calendar__week--nextmonth';
     }
 
     return weekEl;
 }
 
 /**
- * Nosakām vai padotajā nedēļā kaut viens datums ir 
+ * Nosakām vai padotajā nedēļā kaut viens datums ir
  * ar norādīto pazīmi. Vai visi datumi ir prev, curr vai next
  */
 function isAnyDay(week, markName) {

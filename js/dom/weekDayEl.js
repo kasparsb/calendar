@@ -3,9 +3,9 @@ var emptyElement = require('./emptyElement');
 var abr = ['M', 'T', 'W', 'Th', 'F', 'S', 'Sn'];
 var props;
 
-function addCssClasses(el) {
+function addCssClasses(el, prefix) {
 
-    el.className = 'calendar__weekday';
+    el.className = prefix+'calendar__weekday';
 
     return el;
 }
@@ -26,11 +26,13 @@ function defaultWeekDayFormatter(day, currentEl) {
 
 function createDomWeekDayElement(day, properties) {
     props = properties;
+    this.cssPrefix = props.get('cssPrefix', '');
 
-    this.el = addCssClasses(document.createElement('div'));
-    
+
+    this.el = addCssClasses(document.createElement('div'), this.cssPrefix);
+
     this.elContent = props.get('weekDayFormatter', defaultWeekDayFormatter)(day, null);
-    
+
     this.el.appendChild(this.elContent);
 }
 

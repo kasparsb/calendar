@@ -15,11 +15,12 @@ function defaultWeekDayFormatter(date, currentEl) {
 }
 
 function weekDaysDomElement(props) {
-    
+
     this.props = props;
+    this.cssPrefix = this.props.get('cssPrefix', '');
 
     this.el = document.createElement('div');
-    this.el.className = 'calendar__weekdays';
+    this.el.className = this.cssPrefix+'calendar__weekdays';
 
     this.days = [];
     for (var i = 0; i < 7; i++) {
