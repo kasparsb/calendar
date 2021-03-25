@@ -25,7 +25,7 @@ function monthEl(date, props) {
     for (var w = 0; w < monthStructure.length; w++) {
 
         weekEl = document.createElement('div');
-        weekEl = addClassNames(weekEl, monthStructure[w]);
+        weekEl = addClassNames(weekEl, monthStructure[w], this.cssPrefix);
 
         for (var d = 0; d < monthStructure[w].length; d++) {
 
@@ -46,17 +46,17 @@ function monthEl(date, props) {
     }
 }
 
-function addClassNames(weekEl, week) {
-    weekEl.className = this.cssPrefix+'calendar__week';
+function addClassNames(weekEl, week, cssPrefix) {
+    weekEl.className = cssPrefix+'calendar__week';
 
     if (isAnyDay(week, 'prev')) {
-        weekEl.className += ' '+this.cssPrefix+'calendar__week--prevmonth';
+        weekEl.className += ' '+cssPrefix+'calendar__week--prevmonth';
     }
     if (isAnyDay(week, 'curr')) {
-        weekEl.className += ' '+this.cssPrefix+'calendar__week--currmonth';
+        weekEl.className += ' '+cssPrefix+'calendar__week--currmonth';
     }
     if (isAnyDay(week, 'next')) {
-        weekEl.className += ' '+this.cssPrefix+'calendar__week--nextmonth';
+        weekEl.className += ' '+cssPrefix+'calendar__week--nextmonth';
     }
 
     return weekEl;
