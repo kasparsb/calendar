@@ -62,7 +62,7 @@ function render(date, props) {
     // Slide elements
     this.slideEls = [];
 
-    for (var si = 0; si < 10; si++) {
+    for (var si = 0; si < 5; si++) {
         var sel = document.createElement('div');
         sel.className = this.cssPrefix+'calendar__slide';
         this.slidesEl.appendChild(sel);
@@ -313,7 +313,6 @@ render.prototype = {
      * Pārzīmē visus kalendārus
      */
     refresh: function() {
-        var mthis = this;
         // Jānomaina tikai datuma daļa visos kalendāros
         this.months.each(function(month){
             month.refresh()
