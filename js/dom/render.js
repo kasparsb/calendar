@@ -309,6 +309,17 @@ render.prototype = {
         })
     },
 
+    /**
+     * Pārzīmē visus kalendārus
+     */
+    refresh: function() {
+        var mthis = this;
+        // Jānomaina tikai datuma daļa visos kalendāros
+        this.months.each(function(month){
+            month.refresh()
+        })
+    },
+
     destroy: function() {
         this.setEvents('remove');
 

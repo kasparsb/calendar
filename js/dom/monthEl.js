@@ -123,6 +123,11 @@ monthEl.prototype = {
         this.hightliteDate = date;
 
         this.applyDateChanges(this.date, this.hightliteDate);
+    },
+    refresh: function() {
+        each2d(this.days, function(item){
+            item.el.refresh()
+        })
     }
 }
 

@@ -44,6 +44,7 @@ function defaultMonthDayFormatter(date, currentEl) {
 }
 
 function createDomDayElement(date, props) {
+    this.date = date;
     this.props = props;
     this.cssPrefix = this.props.get('cssPrefix', '');
 
@@ -59,9 +60,20 @@ createDomDayElement.prototype = {
         return this.el;
     },
     setDate: function(date) {
+        this.date = date;
         addCssClasses(this.el, date, this.cssPrefix);
 
         var newElContent = this.props.get('monthDayFormatter', defaultMonthDayFormatter)(date, this.elContent)
+
+        // Ja atgriezts cits elContent
+        if (!this.el.contains(newElContent)) {
+            this.elContent = newElContent;
+
+            emptyElement(this.el).appendChild(this.elContent)
+        }
+    },
+    refresh: function() {
+        var newElContent = this.props.get('monthDayFormatter', defaultMonthDayFormatter)(this.date, this.elContent)
 
         // Ja atgriezts cits elContent
         if (!this.el.contains(newElContent)) {
