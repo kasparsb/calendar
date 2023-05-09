@@ -46,6 +46,13 @@
             count: 1,
             showWeekdays: true,
             showDateSwitch: true,
+            showToday: false,
+            // pazīme, ka jāļauj atzīmēt period
+            selectPeriod: true,
+            selectedPeriod: {
+                from: new Date('2023-05-10 00:00:00'),
+                till: new Date('2023-05-22 23:59:59')
+            },
             monthDayFormatter: function(date, el, dateState){
 
                 if (!el) {
@@ -67,6 +74,11 @@
         //         '2023-05-21': 'b'
         //     })
         // }, 2000)
+
+        calendar2.on('periodselect', period => {
+            console.log('periodselect');
+            console.log(period)
+        });
 
         // calendar2.on('dateclick', date => {
         //     console.log('dateclick');
