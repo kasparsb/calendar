@@ -1,9 +1,9 @@
-function properties(props) {
+function Properties(props) {
     this.props = typeof props == 'undefined' ? {} : props;
 }
 
-properties.prototype = {
-    get: function(propName, defaultValue) {
+Properties.prototype = {
+    get(propName, defaultValue) {
         if (typeof this.props[propName] == 'undefined') {
             return defaultValue;
         }
@@ -12,4 +12,4 @@ properties.prototype = {
     }
 }
 
-module.exports = properties
+export default Properties

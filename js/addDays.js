@@ -1,4 +1,4 @@
-var cloneDate = require('./cloneDate');
+import cloneDate from './cloneDate';
 
 /**
  * Atgriežam jaunu datuma objektu, kuram pielikts norādītais skaits dienu
@@ -13,4 +13,4 @@ function addDays(date, daysCount) {
     return d;
 }
 
-module.exports = addDays;
+export default addDays;

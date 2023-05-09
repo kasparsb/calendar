@@ -5,4 +5,4 @@ function isSameDate(date1, date2) {
     return false;
 }
 
-module.exports = isSameDate;
+export default isSameDate;

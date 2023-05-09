@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
+    <title>Basic calendar</title>
+
+    <link rel="stylesheet" href="../build/calendar.min-0.0.2.css" type="text/css" />
+    <style>
+        .container {
+            margin: 80px auto;
+            max-width: 400px;
+        }
+        .calendar1,
+        .calendar2 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calendar1"></div>
+        <div class="calendar2"></div>
+    </div>
+
+    <script src="../build/calendar.min-0.0.2.js"></script>
+
+    <script>
+
+        // window.webit.calendar.periodStructure(
+        //     document.querySelector('.container'),
+        //     window.webit.calendar.monthPeriod(new Date('2023-04-28'))
+        // )
+
+        //window.webit.calendar.monthWithFullWeeksPeriod(new Date('2022-12-20'))
+
+        let calendar1 = new window.webit.calendar.dom(new Date(), {
+            view: 'week',
+            count: 1,
+        });
+        document.querySelector('.calendar1').appendChild(calendar1.getEl())
+
+
+        let calendar2 = new window.webit.calendar.dom(new Date(), {
+            view: 'month',
+            count: 1,
+            showWeekdays: true,
+            showDateSwitch: true,
+            monthDayFormatter: function(date, el, dateState){
+
+                if (!el) {
+                    el = document.createElement('div');
+                    el.innerHTML = date.getDate();
+                    return el;
+                }
+
+                el.innerHTML = date.getDate()+(dateState ? dateState : '');
+            },
+            weekDayToText: function(dayIndex) {
+                return ['', 'P', 'O', 'T', 'C', 'Pk', 'S', 'Sv'][dayIndex];
+            }
+        });
+
+        // setInterval(function(){
+        //     calendar2.setState({
+        //         '2023-05-20': (new Date().getTime()+'').substring(11, 12),
+        //         '2023-05-21': 'b'
+        //     })
+        // }, 2000)
+
+        // calendar2.on('dateclick', date => {
+        //     console.log('dateclick');
+        //     console.log(date)
+        // });
+        // calendar2.on('slidechange', date => {
+        //     console.log('slidechange');
+        //     console.log(date)
+        // });
+        // calendar2.on('slideschange', dates => {
+        //     console.log('slideschange');
+        //     console.log(dates)
+        // });
+
+
+        document.querySelector('.calendar2').appendChild(calendar2.getEl())
+
+    </script>
+</body>
+</html>

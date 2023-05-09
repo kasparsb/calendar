@@ -17,4 +17,4 @@ function dayOfWeek(date) {
     return r;
 }
 
-module.exports = dayOfWeek;
+export default dayOfWeek;

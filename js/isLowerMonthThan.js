@@ -10,4 +10,4 @@ function isLowerMonthThan(date1, date2) {
     return false;
 }
 
-module.exports = isLowerMonthThan;
+export default isLowerMonthThan;

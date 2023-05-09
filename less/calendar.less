@@ -1,77 +1,101 @@
 @import './variables';
 
 .calendar {
-
     .remove-tap-highlite();
 
-    width: @dayHeight * 7;
+    user-select: none;
+
 
     &__switch {
-        text-align: center;
-        padding: 8px 0;
+        display: flex;
+        flex-flow: row nowrap;
+        height: 40px;
     }
 
     &__nav,
     &__datecaption {
-        display: inline-block;
-        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     &__nav {
-        width: @navWidth;
-        height: @navHeight;
-        line-height: @navHeight;
-        text-align: center;
+        flex: 0 0 40px;
+        cursor: pointer;
     }
 
     &__datecaption {
-        height: @dataCaptionHeight;
-        line-height: @dataCaptionHeight;
+        flex: 1 1 100%;
+    }
+
+    &__weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
     }
 
     &__slides {
         position: relative;
-        height: @dayHeight * 6;
         overflow: hidden;
+
+        display: flex;
+        flex-flow: row nowrap;
+
+        border-left: 1px solid @borderColor;
+        border-top: 1px solid @borderColor;
     }
 
     &__slide {
-        position: absolute;
-        left: 0;
-        top: 0;
+        // aizņem visu platumu
+        flex: 0 0 100%;
         width: 100%;
-        height: 100%;
+        box-sizing: border-box;
+
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+
+        //align-items: start;
+
+        >div {
+            border-right: 1px solid @borderColor;
+            border-bottom: 1px solid @borderColor;
+
+            aspect-ratio: 1;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            align-self: start;
+        }
     }
 
-    &__weekdays,
-    &__week {
-        overflow: hidden;
+    &__weekday {
+        text-align: center;
     }
 
-    &__weekday,
     &__date {
-        width: @dayWidth;
-        height: @dayHeight;
-        line-height: @dayHeight;
-        text-align: center; 
 
         cursor: pointer;
 
-        float: left;
-
-        &--currdate {
-            background-color: blue;
-            color: #fff;
+        &--today {
+            background-color: @borderColor;
         }
 
-        &--wd-6,
-        &--wd-7 {
-            color: red
+        &--selected {
+            background-color: red;
         }
 
         &--prevmonth,
         &--nextmonth {
-            color: silver
+            color: gray
+        }
+    }
+
+    &__weekday,
+    &__date {
+        &--wd-6,
+        &--wd-7 {
+            color: red;
         }
     }
 }

@@ -1,5 +1,5 @@
-var cloneDate = require('./cloneDate');
-var daysInMonth = require('./daysInMonth');
+import cloneDate from './cloneDate';
+import daysInMonth from './daysInMonth';
 
 function addMonths(date, monthsCount) {
     var d = cloneDate(date);
@@ -15,8 +15,8 @@ function addMonths(date, monthsCount) {
     // Ja iepriekšējais datums ir lielāks nekā esošajā mēnesī,
     // tad uzstādām pēdējo iespējamo lielāko
     d.setDate(Math.min(n, daysInMonth(d.getFullYear(), d.getMonth()+1)));
-    
+
     return d;
 }
 
-module.exports = addMonths;
+export default addMonths;
