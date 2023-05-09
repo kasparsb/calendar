@@ -8,6 +8,9 @@ import dayOfWeek from '../dayOfWeek';
 import isHigherMonthThan from '../isHigherMonthThan';
 import isLowerMonthThan from '../isLowerMonthThan';
 import isSameDate from '../isSameDate';
+import isPeriodStart from '../isPeriodStart';
+import isPeriodEnd from '../isPeriodEnd';
+import isPeriodIn from '../isPeriodIn';
 import {jsx, qa, remove, append, replaceContent, hasClass, clickp} from 'dom-helpers';
 import {
     week as weekPeriod,
@@ -38,6 +41,7 @@ function render(baseDate, props) {
 
     this.events = new CalendarEvents([
         'dateclick',
+        'periodselect',
 
         // Pogas next un prev click
         'prevclick',
@@ -87,10 +91,25 @@ function render(baseDate, props) {
      */
     this.date = cloneDate(baseDate);
 
+    // Vai atzīmēt šodienas datumu
+    this.showToday = this.props.get('showToday', true);
     this.today = new Date();
 
+    this.showSelectedDate = this.props.get('showSelectedDate', true);
     this.selectedDate = null;
 
+    /**
+     * Pazīme, ka klikšķinot uz datumiem tiek veidots period
+     */
+    this.selectPeriod = this.props.get('selectPeriod', false);
+    if (this.selectPeriod) {
+        this.showSelectedDate = false;
+    }
+
+    this.selectedPeriod = this.props.get('selectedPeriod', {
+        from: null,
+        till: null
+    });
 
     this.initInfinitySwipe();
 
@@ -157,15 +176,30 @@ render.prototype = {
                 classes.push('calendar__date--prevmonth');
             }
 
-            if (isSameDate(date, this.today)) {
-                classes.push('calendar__date--today');
+            if (this.showToday) {
+                if (isSameDate(date, this.today)) {
+                    classes.push('calendar__date--today');
+                }
             }
 
-            if (this.selectedDate && isSameDate(date, this.selectedDate)) {
-                classes.push('calendar__date--selected');
+            if (this.showSelectedDate) {
+                if (this.selectedDate && isSameDate(date, this.selectedDate)) {
+                    classes.push('calendar__date--selected');
+                }
             }
 
             // Selected period
+            if (isPeriodStart(date, this.selectedPeriod)) {
+                classes.push('calendar__date--period-start');
+            }
+
+            if (isPeriodEnd(date, this.selectedPeriod)) {
+                classes.push('calendar__date--period-end');
+            }
+
+            if (isPeriodIn(date, this.selectedPeriod)) {
+                classes.push('calendar__date--period-in');
+            }
 
 
             // Formatter
@@ -207,9 +241,32 @@ render.prototype = {
     },
 
     handleDateClick(dateEl) {
-        this.selectedDate = new Date(parseInt(dateEl.dataset.ts, 10));
 
-        this.setDate(cloneDate(this.selectedDate));
+        let date = new Date(parseInt(dateEl.dataset.ts, 10));
+
+        if (this.selectPeriod) {
+            if (this.selectedPeriod.from && this.selectedPeriod.till) {
+                this.selectedPeriod.from = date;
+                this.selectedPeriod.till = null;
+            }
+            else if (!this.selectedPeriod.from) {
+                this.selectedPeriod.from = date;
+            }
+            else if (this.selectedPeriod.from) {
+                this.selectedPeriod.till = date;
+
+                // Swap vietām, ja from ir lielāks par till
+                if (this.selectedPeriod.till < this.selectedPeriod.from) {
+                    let tmp = this.selectedPeriod.from;
+                    this.selectedPeriod.from = this.selectedPeriod.till;
+                    this.selectedPeriod.till = tmp;
+                }
+            }
+        }
+        else {
+            this.selectedDate = date;
+            this.setDate(cloneDate(this.selectedDate));
+        }
 
         /**
          * Ja uzklišķināts uz prev/next
@@ -233,7 +290,19 @@ render.prototype = {
 
         this.refresh();
 
-        this.events.fire('dateclick', [cloneDate(this.selectedDate)])
+        // Period mode
+        if (this.selectPeriod) {
+            if (this.selectedPeriod.from && this.selectedPeriod.till) {
+                this.events.fire('periodselect', [{
+                    from: cloneDate(this.selectedPeriod.from),
+                    till: cloneDate(this.selectedPeriod.till)
+                }])
+            }
+        }
+        // Single date mode
+        else {
+            this.events.fire('dateclick', [cloneDate(this.selectedDate)])
+        }
     },
 
     handleSlideChange() {
