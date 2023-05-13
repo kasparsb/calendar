@@ -1,16 +1,13 @@
 import cloneDate from '../cloneDate';
 import InfinitySwipe from 'infinityswipe';
 import Properties from '../properties';
-import addDays from '../addDays';
 import addWeeks from '../addWeeks';
 import addMonths from '../addMonths';
 import dayOfWeek from '../dayOfWeek';
 import isHigherMonthThan from '../isHigherMonthThan';
 import isLowerMonthThan from '../isLowerMonthThan';
 import isSameDate from '../isSameDate';
-import isPeriodStart from '../isPeriodStart';
-import isPeriodEnd from '../isPeriodEnd';
-import isPeriodIn from '../isPeriodIn';
+import Period from '../period';
 import {jsx, qa, remove, append, replaceContent, hasClass, clickp} from 'dom-helpers';
 import {
     week as weekPeriod,
@@ -22,20 +19,6 @@ import defaultMonthDayFormatter from './defaultMonthDayFormatter';
 import createWeekDaysEl from './createWeekDaysEl';
 import createDateSwitchEl from './createDateSwitchEl';
 import {ymd} from '../formatDate';
-
-/**
- * Vajag state, kurā glabāt esošo stāvokli
- *
- * currentData - šito atgriezīs getDate
- * highliteDate - iezīmētais datums
- *      ^ hvz, vai šitie abi ir viens un tas pats?
- *
- * today - arī iezīmēts
- * period - iezīmētais periods. Visi datumi, kas periodā iezīmēsis
- *
- *
- */
-
 
 function render(baseDate, props) {
 
@@ -106,10 +89,7 @@ function render(baseDate, props) {
         this.showSelectedDate = false;
     }
 
-    this.selectedPeriod = this.props.get('selectedPeriod', {
-        from: null,
-        till: null
-    });
+    this.selectedPeriod = new Period(this.props.get('selectedPeriod', null));
 
     this.initInfinitySwipe();
 
@@ -189,15 +169,15 @@ render.prototype = {
             }
 
             // Selected period
-            if (isPeriodStart(date, this.selectedPeriod)) {
+            if (this.selectedPeriod.isStart(date)) {
                 classes.push('calendar__date--period-start');
             }
 
-            if (isPeriodEnd(date, this.selectedPeriod)) {
+            if (this.selectedPeriod.isEnd(date)) {
                 classes.push('calendar__date--period-end');
             }
 
-            if (isPeriodIn(date, this.selectedPeriod)) {
+            if (this.selectedPeriod.isIn(date)) {
                 classes.push('calendar__date--period-in');
             }
 
@@ -245,27 +225,24 @@ render.prototype = {
         let date = new Date(parseInt(dateEl.dataset.ts, 10));
 
         if (this.selectPeriod) {
-            if (this.selectedPeriod.from && this.selectedPeriod.till) {
+
+            if (this.selectedPeriod.hasFullPeriod()) {
                 this.selectedPeriod.from = date;
                 this.selectedPeriod.till = null;
             }
-            else if (!this.selectedPeriod.from) {
+            else if (!this.selectedPeriod.hasPeriodFrom()) {
                 this.selectedPeriod.from = date;
             }
-            else if (this.selectedPeriod.from) {
+            else if (!this.selectedPeriod.hasPeriodTill()) {
                 this.selectedPeriod.till = date;
-
-                // Swap vietām, ja from ir lielāks par till
-                if (this.selectedPeriod.till < this.selectedPeriod.from) {
-                    let tmp = this.selectedPeriod.from;
-                    this.selectedPeriod.from = this.selectedPeriod.till;
-                    this.selectedPeriod.till = tmp;
-                }
             }
+
+            this.selectedPeriod.swapIfMissOrdered();
+
         }
         else {
             this.selectedDate = date;
-            this.setDate(cloneDate(this.selectedDate));
+            this.date = cloneDate(this.selectedDate);
         }
 
         /**
@@ -292,11 +269,8 @@ render.prototype = {
 
         // Period mode
         if (this.selectPeriod) {
-            if (this.selectedPeriod.from && this.selectedPeriod.till) {
-                this.events.fire('periodselect', [{
-                    from: cloneDate(this.selectedPeriod.from),
-                    till: cloneDate(this.selectedPeriod.till)
-                }])
+            if (this.selectedPeriod.hasFullPeriod()) {
+                this.events.fire('periodselect', [this.selectedPeriod.toObj()])
             }
         }
         // Single date mode
@@ -308,7 +282,10 @@ render.prototype = {
     handleSlideChange() {
         let slide = this.infty.getCurrent();
 
-        this.setDate(cloneDate(slide.getData('date')));
+        this.date = cloneDate(slide.getData('date'));
+        if (this.dateSwitch) {
+            this.dateSwitch.setDate(cloneDate(slide.getData('date')));
+        }
 
         this.events.fire('slidechange', [cloneDate(slide.getData('date'))]);
     },
@@ -330,11 +307,6 @@ render.prototype = {
 
         let k = ymd(date);
         return this.state[k];
-    },
-
-    setDate(date) {
-        this.date = date;
-        this.dateSwitch.setDate(cloneDate(this.date));
     },
 
     /**
@@ -383,6 +355,61 @@ render.prototype = {
         this.state = state;
 
         this.refresh();
+    },
+
+    setDate(date) {
+        this.date = cloneDate(date);
+        if (this.dateSwitch) {
+            this.dateSwitch.setDate(cloneDate(this.date));
+        }
+
+        this.baseDate = cloneDate(date);
+
+        console.log('infinityswipe restart');
+        this.infty.restart();
+    },
+
+    setSelectedDate(date) {
+        this.selectedDate = cloneDate(date);
+
+        this.setDate(cloneDate(this.selectedDate));
+    },
+
+    setSelectedPeriod(period) {
+        this.selectedPeriod = new Period(period);
+
+        this.refresh();
+    },
+
+    /**
+     * Period select režīms
+     *     true - būs period select režīms
+     *     false - nebūs period select režīms
+     */
+    setSelectPeriod(state) {
+        this.selectPeriod = state;
+
+        if (this.selectPeriod) {
+            this.showSelectedDate = false;
+        }
+        else {
+            this.showSelectedDate = true;
+            this.selectedPeriod = new Period(null);
+        }
+
+        this.refresh();
+    },
+
+    getDate() {
+        return cloneDate(this.date);
+    },
+
+    getSelectedDate() {
+        return this.selectedDate ? cloneDate(this.selectedDate) : null;
+    },
+
+    getSelectedPeriod() {
+        return this.selectedPeriod.toObj();
     },
 
     refresh() {
