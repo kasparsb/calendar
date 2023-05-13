@@ -15,29 +15,76 @@
         .calendar2 {
             margin-bottom: 20px;
         }
+        form,
+        .action {
+            margin-top: 20px;
+        }
+        form h4,
+        .action h4 {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="calendar1"></div>
         <div class="calendar2"></div>
+
+        <div class="action">
+            <h4>Calendar1 set select period</h4>
+            <button name="calendar1_setselectperiod">Set select period</button><br />
+            <button name="calendar1_unsetselectperiod">Unset select period</button>
+        </div>
+
+        <div class="action">
+            <h4>Calendar2 set select period</h4>
+            <button name="calendar2_setselectperiod">Set select period</button><br />
+            <button name="calendar2_unsetselectperiod">Unset select period</button>
+        </div>
+
+        <form id="setdate">
+            <h4>Set date</h4>
+            <input type="text" name="date" value="2023-02-01" />
+            <button type="submit">Set</button>
+        </form>
+
+        <form id="setselecteddate">
+            <h4>Set selected date</h4>
+            <input type="text" name="date" value="2023-05-11" />
+            <button type="submit">Set</button>
+        </form>
+
+        <form id="getdate">
+            <h4>Get date</h4>
+            <input type="text" name="date" />
+            <button type="submit">Get</button>
+        </form>
+
+        <form id="getselecteddate">
+            <h4>Get selected date</h4>
+            <input type="text" name="date" />
+            <button type="submit">Get</button>
+        </form>
+
+        <form id="getselectedperiod">
+            <h4>Get selected period</h4>
+            <textarea name="date"></textarea>
+            <button type="submit">Get</button>
+        </form>
     </div>
 
+    <script src="./dom-helpers.min.js"></script>
     <script src="../build/calendar.min-0.0.2.js"></script>
 
     <script>
-
-        // window.webit.calendar.periodStructure(
-        //     document.querySelector('.container'),
-        //     window.webit.calendar.monthPeriod(new Date('2023-04-28'))
-        // )
-
-        //window.webit.calendar.monthWithFullWeeksPeriod(new Date('2022-12-20'))
 
         let calendar1 = new window.webit.calendar.dom(new Date(), {
             view: 'week',
             count: 1,
         });
+        calendar1.on('dateclick', date => {
+            console.log('week date click', date);
+        })
         document.querySelector('.calendar1').appendChild(calendar1.getEl())
 
 
@@ -95,6 +142,55 @@
 
 
         document.querySelector('.calendar2').appendChild(calendar2.getEl())
+
+        var helpers = window.webit.domHelpers;
+
+        helpers.submitp('#setdate', (ev, el) => {
+            let data = helpers.getFormData(el);
+
+            calendar1.setDate(new Date(data.date));
+            calendar2.setDate(new Date(data.date));
+        })
+
+        helpers.submitp('#setselecteddate', (ev, el) => {
+            let data = helpers.getFormData(el);
+
+            calendar1.setSelectedDate(new Date(data.date));
+            calendar2.setSelectedDate(new Date(data.date));
+        })
+
+        helpers.submitp('#getdate', (ev, el) => {
+            helpers.setFormData(el, {
+                date: calendar2.getDate()
+            })
+        })
+
+        helpers.submitp('#getselecteddate', (ev, el) => {
+            helpers.setFormData(el, {
+                date: calendar2.getSelectedDate()
+            })
+        })
+
+        helpers.submitp('#getselectedperiod', (ev, el) => {
+            var p = calendar2.getSelectedPeriod();
+            helpers.setFormData(el, {
+                date: p ? p.from + "\n\n" + p.till : null
+            })
+        })
+
+        helpers.click('[name=calendar1_setselectperiod]', () => {
+            calendar1.setSelectPeriod(true);
+        })
+        helpers.click('[name=calendar1_unsetselectperiod]', () => {
+            calendar1.setSelectPeriod(false);
+        })
+
+        helpers.click('[name=calendar2_setselectperiod]', () => {
+            calendar2.setSelectPeriod(true);
+        })
+        helpers.click('[name=calendar2_unsetselectperiod]', () => {
+            calendar2.setSelectPeriod(false);
+        })
 
     </script>
 </body>
