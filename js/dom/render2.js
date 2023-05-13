@@ -365,7 +365,6 @@ render.prototype = {
 
         this.baseDate = cloneDate(date);
 
-        console.log('infinityswipe restart');
         this.infty.restart();
     },
 
@@ -413,10 +412,8 @@ render.prototype = {
     },
 
     refresh() {
-        console.time('x');
         // Redecorate all slides
         this.infty.getSlides().slides.forEach(slide => this.decorateSlideDates(slide))
-        console.timeEnd('x');
     },
 
     destroy() {
