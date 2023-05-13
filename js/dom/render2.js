@@ -13,7 +13,7 @@ import {
     week as weekPeriod,
     monthWithFullWeeks as monthWithFullWeeksPeriod
 } from '../createPeriod';
-import periodStructure from '../periodStructure';
+import periodStructure from './periodStructure';
 import CalendarEvents from './calendarEvents';
 import defaultMonthDayFormatter from './defaultMonthDayFormatter';
 import createWeekDaysEl from './createWeekDaysEl';
