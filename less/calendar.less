@@ -1,64 +1,30 @@
-@import './variables';
+.wbcalendar {
 
-.calendar {
-    .remove-tap-highlite();
-
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
     user-select: none;
 
-
-    &__switch {
-        display: flex;
-        flex-flow: row nowrap;
-        height: 40px;
-    }
-
-    &__nav,
-    &__datecaption {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    &__nav {
-        flex: 0 0 40px;
-        cursor: pointer;
-    }
-
-    &__datecaption {
-        flex: 1 1 100%;
-    }
-
-    &__weekdays {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-    }
-
-    &__slides {
+    // Slides for infinity swipe
+    &-slides {
         position: relative;
         overflow: hidden;
 
         display: flex;
         flex-flow: row nowrap;
-
-        border-left: 1px solid @borderColor;
-        border-top: 1px solid @borderColor;
     }
-
-    &__slide {
-        // aizņem visu platumu
+    &-slide {
+        // full width
         flex: 0 0 100%;
         width: 100%;
         box-sizing: border-box;
+    }
 
+
+    // Calendar month/week grid
+    &-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
 
-        //align-items: start;
-
         >div {
-            border-right: 1px solid @borderColor;
-            border-bottom: 1px solid @borderColor;
-
             aspect-ratio: 1;
 
             display: flex;
@@ -69,41 +35,71 @@
         }
     }
 
-    &__weekday {
-        text-align: center;
+
+    &-switch {
+        display: flex;
+        flex-flow: row nowrap;
+        height: 40px;
     }
 
-    &__date {
+    &-nav,
+    &-datecaption {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
+    &-nav {
+        flex: 0 0 40px;
         cursor: pointer;
-
-        &--today {
-            background-color: @borderColor;
-        }
-
-        &--selected {
-            background-color: red;
-        }
-
-        &--prevmonth,
-        &--nextmonth {
-            color: gray
-        }
-
-        &--period-in {
-            background-color: #c9e1ff;
-        }
-        &--period-start,
-        &--period-end {
-            background-color: #194071;
-        }
     }
 
-    &__weekday,
-    &__date {
-        &--wd-6,
-        &--wd-7 {
-            color: red;
-        }
+    &-datecaption {
+        flex: 1 1 100%;
+    }
+
+
+    &-weekdays {
+
+    }
+    &-weekday {
+
+    }
+
+    // calendar dates container
+    &-dates {
+
+    }
+    &-date {
+        cursor: pointer;
+    }
+
+
+
+    // Modifiers
+    &--today {
+
+    }
+
+    &--selected {
+        background-color: red;
+    }
+
+    &--prevmonth,
+    &--nextmonth {
+        color: gray
+    }
+
+    &--period-in {
+        background-color: #c9e1ff;
+    }
+    &--period-start,
+    &--period-end {
+        background-color: #194071;
+    }
+
+    &--wd-6,
+    &--wd-7 {
+        color: red;
     }
 }

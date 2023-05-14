@@ -19,6 +19,7 @@ import defaultMonthDayFormatter from './defaultMonthDayFormatter';
 import createWeekDaysEl from './createWeekDaysEl';
 import createDateSwitchEl from './createDateSwitchEl';
 import {ymd} from '../formatDate';
+import {classNames, ClassesList} from './CssClassNames';
 
 function render(baseDate, props) {
 
@@ -41,22 +42,29 @@ function render(baseDate, props) {
 
     this.props = new Properties(props);
 
+    this.cssPrefix = this.props.get('cssprefix', 'wb');
+
     this.state = null;
 
+    let cs = classNames(this.cssPrefix);
+
     // Calendar dom elements
-    this.el = <div class="calendar"></div>
+    this.el = <div class={cs('calendar')}></div>
     // Date switch el
     this.dateSwitch = null;
     if (this.props.get('showDateSwitch', true)) {
-        this.dateSwitch = createDateSwitchEl(cloneDate(baseDate), this.props);
+        this.dateSwitch = createDateSwitchEl(cloneDate(baseDate), this.props, this.cssPrefix);
         append(this.el, this.dateSwitch.getEl());
     }
     // Weekdays
     if (this.props.get('showWeekdays', true)) {
-        append(this.el, createWeekDaysEl(this.props));
+        append(this.el, createWeekDaysEl(this.props, this.cssPrefix));
     }
-    this.slidesEl = append(this.el, <div class="calendar__slides"></div>);
-    this.slideEls = append(this.slidesEl, Array(this.props.get('slidesCount', 5)).fill().map(() => <div class="calendar__slide"></div>));
+    this.slidesEl = append(this.el, <div class={cs('calendar-slides')}></div>);
+    this.slideEls = append(
+        this.slidesEl,
+        Array(this.props.get('slidesCount', 5)).fill()
+            .map(() => <div class={cs('calendar-slide')}></div>));
 
     /**
      * Šis datums tiks izmantots, lai uzstādītu slaidos datumu
@@ -104,11 +112,12 @@ render.prototype = {
         this.infty.onChange(() => this.handleSlideChange())
         this.infty.onSlidesChange((slides) => this.handleSlidesChange(slides))
 
-        clickp(this.el, '.calendar__date', (ev, el) => this.handleDateClick(el))
+        // Event listeners are by data attributes. To be independant of class names
+        clickp(this.el, '[data-ts]', (ev, el) => this.handleDateClick(el))
 
-        clickp(this.el, '.calendar__nav--prev', () => this.handleDateSwitchPrevClick());
-        clickp(this.el, '.calendar__nav--next', () => this.handleDateSwitchNextClick());
-        clickp(this.el, '.calendar__datecaption', () => this.handleDateSwitchCaptionClick())
+        clickp(this.el, '[data-navprev]', () => this.handleDateSwitchPrevClick());
+        clickp(this.el, '[data-navnext]', () => this.handleDateSwitchNextClick());
+        clickp(this.el, '[data-datecaption]', () => this.handleDateSwitchCaptionClick())
     },
 
     initInfinitySwipe: function() {
@@ -129,7 +138,10 @@ render.prototype = {
 
         slide.setData('date', cloneDate(slideDate));
 
-        append(slideEl, periodStructure(
+        let cs = classNames(this.cssPrefix);
+
+        let grid = append(slideEl, <div class={cs('calendar-grid', 'calendar-dates')}></div>);
+        append(grid, periodStructure(
             this.createDatesPeriodByView(view, count, slideDate)
         ));
 
@@ -143,42 +155,58 @@ render.prototype = {
         qa(slide.el, '[data-ts]').forEach(el => {
             let date = new Date(parseInt(el.dataset.ts, 10));
 
-            let classes = [
-                'calendar__date',
-                'calendar__date--wd-'+dayOfWeek(date)
-            ];
+            // All available modifiers
+            let classes = new ClassesList(this.cssPrefix, {
+                'calendar-date': true,
+                'calendar--wd-1': false,
+                'calendar--wd-2': false,
+                'calendar--wd-3': false,
+                'calendar--wd-4': false,
+                'calendar--wd-5': false,
+                'calendar--wd-6': false,
+                'calendar--wd-7': false,
+                'calendar--nextmonth': false,
+                'calendar--prevmonth': false,
+                'calendar--today': false,
+                'calendar--selected': false,
+                'calendar--period-start': false,
+                'calendar--period-end': false,
+                'calendar--period-in': false
+            })
+
+            classes.yes('calendar--wd-'+dayOfWeek(date));
 
             if (isHigherMonthThan(date, slideDate)) {
-                classes.push('calendar__date--nextmonth');
+                classes.yes('calendar--nextmonth');
             }
 
             if (isLowerMonthThan(date, slideDate)) {
-                classes.push('calendar__date--prevmonth');
+                classes.yes('calendar--prevmonth');
             }
 
             if (this.showToday) {
                 if (isSameDate(date, this.today)) {
-                    classes.push('calendar__date--today');
+                    classes.yes('calendar--today');
                 }
             }
 
             if (this.showSelectedDate) {
                 if (this.selectedDate && isSameDate(date, this.selectedDate)) {
-                    classes.push('calendar__date--selected');
+                    classes.yes('calendar--selected');
                 }
             }
 
             // Selected period
             if (this.selectedPeriod.isStart(date)) {
-                classes.push('calendar__date--period-start');
+                classes.yes('calendar--period-start');
             }
 
             if (this.selectedPeriod.isEnd(date)) {
-                classes.push('calendar__date--period-end');
+                classes.yes('calendar--period-end');
             }
 
             if (this.selectedPeriod.isIn(date)) {
-                classes.push('calendar__date--period-in');
+                classes.yes('calendar--period-in');
             }
 
 
@@ -200,7 +228,7 @@ render.prototype = {
             }
 
 
-            el.className = classes.join(' ');
+            el.className = classes.className();
         })
     },
 
