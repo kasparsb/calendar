@@ -8,11 +8,12 @@ import isHigherMonthThan from '../isHigherMonthThan';
 import isLowerMonthThan from '../isLowerMonthThan';
 import isSameDate from '../isSameDate';
 import Period from '../period';
-import {jsx, qa, remove, append, replaceContent, clickp} from 'dom-helpers';
-import {
-    week as weekPeriod,
-    monthWithFullWeeks as monthWithFullWeeksPeriod
-} from '../createPeriod';
+import jsx from 'dom-helpers/src/jsx';
+import qa from 'dom-helpers/src/qa';
+import remove from 'dom-helpers/src/remove';
+import append from 'dom-helpers/src/append';
+import replaceContent from 'dom-helpers/src/replaceContent';
+import clickp from 'dom-helpers/src/event/clickp';
 import periodStructure from './periodStructure';
 import CalendarEvents from './calendarEvents';
 import defaultMonthDayFormatter from './defaultMonthDayFormatter';
@@ -20,6 +21,10 @@ import createWeekDaysEl from './createWeekDaysEl';
 import createDateSwitchEl from './createDateSwitchEl';
 import {ymd} from '../formatDate';
 import {classNames, ClassesList} from './CssClassNames';
+import {
+    week as weekPeriod,
+    monthWithFullWeeks as monthWithFullWeeksPeriod
+} from '../createPeriod';
 
 function render(baseDate, props) {
 

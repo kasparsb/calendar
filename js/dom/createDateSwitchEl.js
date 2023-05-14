@@ -1,4 +1,7 @@
-import {jsx, q, replaceContent} from 'dom-helpers';
+import jsx from 'dom-helpers/src/jsx';
+import q from 'dom-helpers/src/q';
+import replaceContent from 'dom-helpers/src/replaceContent';
+
 import {ymd} from '../formatDate';
 import {classNames} from './CssClassNames';
 

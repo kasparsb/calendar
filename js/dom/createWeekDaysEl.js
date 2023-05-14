@@ -1,4 +1,7 @@
-import {jsx, append, replaceContent} from 'dom-helpers';
+import jsx from 'dom-helpers/src/jsx';
+import append from 'dom-helpers/src/append';
+import replaceContent from 'dom-helpers/src/replaceContent';
+
 import {classNames} from './CssClassNames';
 
 let abr = ['', 'M', 'T', 'W', 'Th', 'F', 'S', 'Sn'];

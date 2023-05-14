@@ -1,6 +1,6 @@
 import addDays from '../addDays';
 import cloneDate from '../cloneDate';
-import {jsx} from 'dom-helpers';
+import jsx from 'dom-helpers/src/jsx';
 
 function periodStructure(period) {
 
