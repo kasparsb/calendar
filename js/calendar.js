@@ -1,4 +1,4 @@
-import dom from './dom/render2';
+import dom from './dom/render';
 
 export {
     dom

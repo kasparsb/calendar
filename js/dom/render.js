@@ -1,27 +1,36 @@
-var domEvents = require('../domEvents');
-var addMonths = require('../addMonths');
-var cloneDate = require('../cloneDate');
-var properties = require('../properties');
-var isLowerMonthThan = require('../isLowerMonthThan');
-var isHigherMonthThan = require('../isHigherMonthThan');
-var isSameDate = require('../isSameDate');
-var isSameMonth = require('../isSameMonth');
+import cloneDate from '../cloneDate';
+import InfinitySwipe from 'infinityswipe';
+import Properties from '../properties';
+import addWeeks from '../addWeeks';
+import addMonths from '../addMonths';
+import dayOfWeek from '../dayOfWeek';
+import isHigherMonthThan from '../isHigherMonthThan';
+import isLowerMonthThan from '../isLowerMonthThan';
+import isSameDate from '../isSameDate';
+import Period from '../period';
+import jsx from 'dom-helpers/src/jsx';
+import qa from 'dom-helpers/src/qa';
+import remove from 'dom-helpers/src/remove';
+import append from 'dom-helpers/src/append';
+import replaceContent from 'dom-helpers/src/replaceContent';
+import clickp from 'dom-helpers/src/event/clickp';
+import periodStructure from './periodStructure';
+import CalendarEvents from './calendarEvents';
+import defaultMonthDayFormatter from './defaultMonthDayFormatter';
+import createWeekDaysEl from './createWeekDaysEl';
+import createDateSwitchEl from './createDateSwitchEl';
+import {ymd} from '../formatDate';
+import {classNames, ClassesList} from './CssClassNames';
+import {
+    week as weekPeriod,
+    monthWithFullWeeks as monthWithFullWeeksPeriod
+} from '../createPeriod';
 
-var dateSwitchEl = require('./dateSwitchEl');
-var weekDaysEl = require('./weekDaysEl');
-var monthEl = require('./monthEl');
-var months = require('./months');
+function render(baseDate, props) {
 
-var emptyElement = require('./emptyElement');
-
-var infinityswipe = require('infinityswipe');
-
-
-function render(date, props) {
-    var mthis = this;
-
-    this.events = this.prepareEvents([
+    this.events = new CalendarEvents([
         'dateclick',
+        'periodselect',
 
         // Pogas next un prev click
         'prevclick',
@@ -36,297 +45,431 @@ function render(date, props) {
         'slideschange'
     ]);
 
-    this.props = new properties(props);
+    this.props = new Properties(props);
 
-    this.cssPrefix = this.props.get('cssPrefix', '');
+    this.cssPrefix = this.props.get('cssprefix', 'wb');
 
-    this.date = cloneDate(date);
-    // Pēc noklusējuma datums nav highlite
-    this.highliteDate = null;
+    this.state = null;
 
-    this.el = document.createElement('div');
-    this.el.className = this.cssPrefix+'calendar';
+    let cs = classNames(this.cssPrefix);
 
+    // Calendar dom elements
+    this.el = <div class={cs('calendar')}></div>
+    // Date switch el
+    this.dateSwitch = null;
+    if (this.props.get('showDateSwitch', true)) {
+        this.dateSwitch = createDateSwitchEl(cloneDate(baseDate), this.props, this.cssPrefix);
+        append(this.el, this.dateSwitch.getEl());
+    }
+    // Weekdays
+    if (this.props.get('showWeekdays', true)) {
+        append(this.el, createWeekDaysEl(this.props, this.cssPrefix));
+    }
+    this.slidesEl = append(this.el, <div class={cs('calendar-slides')}></div>);
+    this.slideEls = append(
+        this.slidesEl,
+        Array(this.props.get('slidesCount', 5)).fill()
+            .map(() => <div class={cs('calendar-slide')}></div>));
 
-    this.dateSwitch = new dateSwitchEl(this.date, this.props);
-    this.el.appendChild(this.dateSwitch.getEl());
+    /**
+     * Šis datums tiks izmantots, lai uzstādītu slaidos datumu
+     * Slaidiem ir offset no pirmā slide. Šim datuma tiks likts klāt
+     * slaida offset kā mēnesis un tādā veidā zināšu
+     * kādu mēnesi renderēt attiecīgajā slaidā.
+     * Šim datumam nekad nevajadzētu mainīties gadam un mēnesim.
+     */
+    this.baseDate = cloneDate(baseDate);
 
-    this.weekDays = new weekDaysEl(this.props);
-    this.el.appendChild(this.weekDays.getEl());
+    /**
+     * Apmēram datums, kurš ir kalendārā.
+     * Pat ja nav selected tad šis date būs
+     * tas mēnesis, kurš ir redzams kalendārā
+     */
+    this.date = cloneDate(baseDate);
 
+    // Vai atzīmēt šodienas datumu
+    this.showToday = this.props.get('showToday', true);
+    this.today = new Date();
 
-    this.slidesEl = document.createElement('div');
-    this.slidesEl.className = this.cssPrefix+'calendar__slides';
-    this.el.appendChild(this.slidesEl);
+    this.showSelectedDate = this.props.get('showSelectedDate', true);
+    this.selectedDate = null;
 
-    // Slide elements
-    this.slideEls = [];
-
-    for (var si = 0; si < 5; si++) {
-        var sel = document.createElement('div');
-        sel.className = this.cssPrefix+'calendar__slide';
-        this.slidesEl.appendChild(sel);
-        this.slideEls.push(sel);
+    /**
+     * Pazīme, ka klikšķinot uz datumiem tiek veidots period
+     */
+    this.selectPeriod = this.props.get('selectPeriod', false);
+    if (this.selectPeriod) {
+        this.showSelectedDate = false;
     }
 
-
-    // Mēnešu elementu kolekcija
-    this.months = new months();
+    this.selectedPeriod = new Period(this.props.get('selectedPeriod', null));
 
     this.initInfinitySwipe();
 
-    this.setEvents('add');
+    this.setEvents();
 }
 
 render.prototype = {
-    setEvents: function(mode) {
+    setEvents() {
 
-        var mthis = this;
-        function click(ev) {
+        this.infty.onSlideAdd((index, el, slide) => this.handleSlideAdd(index, el, slide));
 
-            var t = domEvents.eventTarget(ev);
+        this.infty.onChange(() => this.handleSlideChange())
+        this.infty.onSlidesChange((slides) => this.handleSlidesChange(slides))
 
-            var day = mthis.months.findDayByEl(t);
-            if (day) {
-                mthis.handleMonthDayClick(day)
+        // Event listeners are by data attributes. To be independant of class names
+        clickp(this.el, '[data-ts]', (ev, el) => this.handleDateClick(el))
+
+        clickp(this.el, '[data-navprev]', () => this.handleDateSwitchPrevClick());
+        clickp(this.el, '[data-navnext]', () => this.handleDateSwitchNextClick());
+        clickp(this.el, '[data-datecaption]', () => this.handleDateSwitchCaptionClick())
+    },
+
+    initInfinitySwipe: function() {
+        this.infty = new InfinitySwipe(this.slidesEl, this.slideEls, {
+            positionItems: this.props.get('positionSlides', true),
+            slidesPadding: this.props.get('slidesPadding', 0)
+        })
+    },
+
+    handleSlideAdd(slideIndex, slideEl, slide) {
+
+        replaceContent(slideEl, '');
+
+        let view = this.props.get('view', 'month');
+        let count = this.props.get('count', 1);
+
+        let slideDate = this.calcIndexDateByView(view, count, slideIndex)
+
+        slide.setData('date', cloneDate(slideDate));
+
+        let cs = classNames(this.cssPrefix);
+
+        let grid = append(slideEl, <div class={cs('calendar-grid', 'calendar-dates')}></div>);
+        append(grid, periodStructure(
+            this.createDatesPeriodByView(view, count, slideDate)
+        ));
+
+        this.decorateSlideDates(slide);
+    },
+
+    decorateSlideDates(slide) {
+
+        let slideDate = slide.getData('date');
+
+        qa(slide.el, '[data-ts]').forEach(el => {
+            let date = new Date(parseInt(el.dataset.ts, 10));
+
+            // Novācam pazīmes prevmonth, nextmonth, currmonth
+            delete el.dataset.prevmonth;
+            delete el.dataset.nextmonth;
+            delete el.dataset.currmonth;
+            delete el.dataset.today;
+
+            // All available modifiers
+            let classes = new ClassesList(this.cssPrefix, {
+                'calendar-date': true,
+                'calendar--wd-1': false,
+                'calendar--wd-2': false,
+                'calendar--wd-3': false,
+                'calendar--wd-4': false,
+                'calendar--wd-5': false,
+                'calendar--wd-6': false,
+                'calendar--wd-7': false,
+                'calendar--nextmonth': false,
+                'calendar--prevmonth': false,
+                'calendar--today': false,
+                'calendar--selected': false,
+                'calendar--period-start': false,
+                'calendar--period-end': false,
+                'calendar--period-in': false
+            })
+
+            classes.yes('calendar--wd-'+dayOfWeek(date));
+
+            if (isHigherMonthThan(date, slideDate)) {
+                classes.yes('calendar--nextmonth');
+
+                el.dataset.nextmonth = true;
             }
-            else if (mthis.dateSwitch.isNavPrev(t)) {
 
-                mthis.infty.prevSlide();
+            if (isLowerMonthThan(date, slideDate)) {
+                classes.yes('calendar--prevmonth');
 
-                mthis.fire('prevclick', []);
+                el.dataset.prevmonth = true;
             }
-            else if (mthis.dateSwitch.isNavNext(t)) {
 
-                mthis.infty.nextSlide();
+            if (this.showToday) {
+                if (isSameDate(date, this.today)) {
+                    classes.yes('calendar--today');
 
-                mthis.fire('nextclick', []);
+                    el.dataset.today = true;
+                }
             }
-            else if (mthis.dateSwitch.isDateCaption(t)) {
-                mthis.fire('datecaptionclick', []);
-            }
-        }
 
-        /**
-         * @todo Pārtaisīt uz external funkciju, pretējā gadījumā nevar novākt listener
-         */
-        if (mode == 'add') {
-            domEvents.addEvent(this.el, 'click', click)
+            if (this.showSelectedDate) {
+                if (this.selectedDate && isSameDate(date, this.selectedDate)) {
+                    classes.yes('calendar--selected');
+                }
+            }
+
+            // Selected period
+            if (this.selectedPeriod.isStart(date)) {
+                classes.yes('calendar--period-start');
+            }
+
+            if (this.selectedPeriod.isEnd(date)) {
+                classes.yes('calendar--period-end');
+            }
+
+            if (this.selectedPeriod.isIn(date)) {
+                classes.yes('calendar--period-in');
+            }
+
+
+            // Formatter
+            let dateFormatter = this.props.get('monthDayFormatter');
+            if (!dateFormatter) {
+                dateFormatter = defaultMonthDayFormatter;
+            }
+
+            let contentEl = el.childNodes.length > 0 ? el.childNodes[0] : null;
+
+            /**
+             * @todo šeit līdzi jāpadod konkrētā datuma state, kāds nu tas
+             * ir uzlikts state uzliek enduser. Vai objekts vai kāda cita vērtība
+             */
+            let newContentEl = dateFormatter(cloneDate(date), contentEl, this.getDateState(date));
+            if (newContentEl) {
+                replaceContent(el, newContentEl);
+            }
+
+
+            el.className = classes.className();
+        })
+    },
+
+    handleDateSwitchPrevClick() {
+        this.infty.prevSlide();
+
+        this.events.fire('prevclick', []);
+    },
+
+    handleDateSwitchNextClick() {
+        this.infty.nextSlide();
+
+        this.events.fire('nextclick', []);
+    },
+
+    handleDateSwitchCaptionClick() {
+        this.events.fire('datecaptionclick', []);
+    },
+
+    handleDateClick(dateEl) {
+
+        let date = new Date(parseInt(dateEl.dataset.ts, 10));
+
+        if (this.selectPeriod) {
+
+            if (this.selectedPeriod.hasFullPeriod()) {
+                this.selectedPeriod.from = date;
+                this.selectedPeriod.till = null;
+            }
+            else if (!this.selectedPeriod.hasPeriodFrom()) {
+                this.selectedPeriod.from = date;
+            }
+            else if (!this.selectedPeriod.hasPeriodTill()) {
+                this.selectedPeriod.till = date;
+            }
+
+            this.selectedPeriod.swapIfMissOrdered();
+
         }
         else {
-            domEvents.removeEvent(this.el, 'click', click);
+            this.selectedDate = date;
+            this.date = cloneDate(this.selectedDate);
         }
-
-        this.infty.onChange(function(){
-            mthis.handleSlideChange();
-        })
-
-        this.infty.onSlideAdd(function(index, el, slide){
-            mthis.handleSlideAdd(index, el, slide)
-        });
-
-        this.infty.onSlidesChange(function(slides){
-            mthis.handleSlidesChange(slides);
-        })
-    },
-
-    prepareEvents: function(eventNames) {
-        var r = {};
-        for ( var i in eventNames ) {
-            r[eventNames[i]] = [];
-        }
-        return r;
-    },
-
-    on: function(eventName, cb) {
-        if (typeof this.events[eventName] != 'undefined') {
-            this.events[eventName].push(cb);
-        }
-
-        return this;
-    },
-
-    /**
-     * Fire events attached callbacks
-     */
-    fire: function(eventName, args) {
-        for (var i in this.events[eventName]) {
-            this.events[eventName][i].apply(this, args);
-        }
-    },
-
-    getEl: function() {
-        return this.el;
-    },
-
-    /**
-     * Atzīmējam kalendārā aktīvo datumu
-     * aktīvais datums ir this.date
-     */
-    setHighliteDate: function(date) {
-        this.highliteDate = cloneDate(date);
-
-        var mthis = this;
-        // Jānomaina tikai datuma daļa visos kalendāros
-        this.months.each(function(month){
-            month.setHightliteDate(mthis.highliteDate)
-        })
-    },
-
-    /**
-     * Iekšējā setDate metode. Nepārbaudām vai ir jāpārkārto slaidi
-     */
-    _setDate: function(date) {
-        this.date = cloneDate(date);
-        this.dateSwitch.setDate(date);
-    },
-
-    /**
-     * Publiskā metode datuma uzstādīšanai
-     */
-    setDate: function(date) {
-        // Tas pats datums. Neko nedarām
-        // Vajag iespēju force reset date
-        // if (isSameDate(this.date, date)) {
-        //     return;
-        // }
-
-        this._setDate(date);
 
         /**
-         * @todo Uztaisīt, lai gadījumā, ja uzstādāmā datuma
-         * slide ir pieejams, tad pārslēgots uz to nevis pārtaisītu
-         * visu kalendāru.
-         * Pašlaik, pēc infty.showSlide izsaukšanas pārslēdzoties
-         * uz prev ir metās kļūda no infty
+         * Ja uzklišķināts uz prev/next
+         * mēneša datuma, tad vajag pārslēgt
+         * uz attiecīgo mēnesi. Šo darām tikai view=month
          */
-        this.inftySlidesDate = cloneDate(this.date);
-        this.infty.restart();
+        let changeSlide = false;
+        if (this.props.get('view') == 'month') {
+            changeSlide = true;
+        }
 
-        this.setHighliteDate(date);
-    },
-
-
-    /**
-     * Return month element
-     * @param number Year
-     * @param number Month, 1 based
-     */
-    getMonth: function(year, month) {
-        return this.months.findByYearMonth(year, month);
-    },
-
-    /**
-     * Return date elements. There could be more then one element
-     * because date is also in prev and next month slides
-     */
-    getDate: function(year, month, date) {
-
-    },
-
-    handleMonthDayClick: function(day) {
-        var mthis = this;
-
-        /**
-         * @todo Varbūt vajag parametru ar kuru nosakām vai vajag pāršķirt mēnesi, jad
-         * ieklikšķināts nākošā mēneša dienā
-         */
-        // Pārbaudām vai vajag pārslēgties uz prev/next mēnesi
-        if (!isSameMonth(this.date, day.date)) {
-            if (isLowerMonthThan(day.date, this.date)) {
-                setTimeout(function(){
-                    mthis.infty.prevSlide();
-                }, 2)
+        if (changeSlide) {
+            // Pārbaudām vai vajag pārslēgties uz prev/next mēnesi
+            if (dateEl.dataset.prevmonth) {
+                setTimeout(() => this.infty.prevSlide(), 2);
             }
-            else if (isHigherMonthThan(day.date, this.date)) {
-                setTimeout(function(){
-                    mthis.infty.nextSlide();
-                }, 2)
+            else if (dateEl.dataset.nextmonth) {
+                setTimeout(() => this.infty.nextSlide(), 2)
             }
         }
 
-        this._setDate(day.date);
-        this.setHighliteDate(day.date);
+        this.refresh();
 
-        this.fire('dateclick', [day.date]);
-    },
-
-    handleSlideAdd: function(index, el, slide) {
-        // Pārbaudām vai slide elementā jau ir mēneša elements
-        var month = this.months.findMonthByConainer(el);
-
-        if (!month) {
-            month = this.months.push(new monthEl(addMonths(this.inftySlidesDate, index), this.props));
+        // Period mode
+        if (this.selectPeriod) {
+            if (this.selectedPeriod.hasFullPeriod()) {
+                this.events.fire('periodselect', [this.selectedPeriod.toObj()])
+            }
         }
+        // Single date mode
         else {
-            month.setDate(addMonths(this.inftySlidesDate, index))
+            this.events.fire('dateclick', [cloneDate(this.selectedDate)])
         }
-
-        // Uzstādām highliteDate
-        month.setHightliteDate(this.highliteDate)
-
-        slide.setData('date', month.getDate());
-
-        emptyElement(el).appendChild(month.el);
     },
 
-    handleSlideChange: function() {
-        var current = this.infty.getCurrent();
-        var month = this.months.findMonthByConainer(current.el);
+    handleSlideChange() {
+        let slide = this.infty.getCurrent();
 
-        this._setDate(month.getDate())
+        this.date = cloneDate(slide.getData('date'));
+        if (this.dateSwitch) {
+            this.dateSwitch.setDate(cloneDate(slide.getData('date')));
+        }
 
-        this.fire('slidechange', [month.getDate()]);
+        this.events.fire('slidechange', [cloneDate(slide.getData('date'))]);
     },
 
     /**
      * Tad, kad ir noformēti visi ielādētie kalendāru slides, tad
      * palaižam event un tajā padodam visus ielādēto kalendāru mēnešus
      */
-    handleSlidesChange: function(slides) {
-        var r = [];
-        for (var i = 0; i < slides.length; i++) {
-            // Ņemam tikai slide uzstādīto datumu
-            r.push(slides[i].getData('date'))
-        }
-
-        this.fire('slideschange', [r]);
+    handleSlidesChange(slides) {
+        this.events.fire('slideschange', [
+            slides.map(slide => slide.getData('date'))
+        ]);
     },
 
-    initInfinitySwipe: function() {
-        /**
-         * Šis datums tiks izmantots, lai uzstādītu slaidos datumu
-         * Slaidiem ir offset no pirmā slide. Šim datuma tiks likts klāt
-         * slaida offset kā mēnesis un tādā veidā zināšu
-         * kādu mēnesi renderēt attiecīgajā slaidā.
-         * Šim datumam nekad nevajadzētu mainīties gadam un mēnesim.
-         * Datuma daļa (dd) var mainīties atkarībā no izvēlētā
-         */
-        this.inftySlidesDate = cloneDate(this.date);
-        this.infty = new infinityswipe(this.slidesEl, this.slideEls, {
-            positionItems: this.props.get('positionSlides', true),
-            slidesPadding: this.props.get('slidesPadding', 0)
-        })
+    getDateState(date) {
+        if (!this.state) {
+            return undefined;
+        }
+
+        let k = ymd(date);
+        return this.state[k];
     },
 
     /**
-     * Pārzīmē visus kalendārus
+     * Aprēķinām datumu pēc padotā slide index
+     * Ņemam base date un liekam klāt datumu pēc padotā slideIndex
      */
-    refresh: function() {
-        // Jānomaina tikai datuma daļa visos kalendāros
-        this.months.each(function(month){
-            month.refresh()
-        })
+    calcIndexDateByView(view, count, slideIndex) {
+        switch (view) {
+            case 'week':
+                return addWeeks(this.baseDate, count*slideIndex);
+            case 'month':
+                return addMonths(this.baseDate, count*slideIndex);
+        }
     },
 
-    destroy: function() {
-        this.setEvents('remove');
+    createDatesPeriodByView(view, count, baseDate) {
+        // Period creator
+        switch (view) {
+            case 'week':
+                return weekPeriod(baseDate, count);
+            case 'month':
+                /**
+                 * ja ir mēnesis, tad pirmo un pēdējo
+                 * nedēļu vajag papildināt ar iepriekšējā un
+                 * nākošā mēneša dienām, lai izveidojas pilnas nedēļas
+                 */
+                return monthWithFullWeeksPeriod(baseDate, count);
+        }
+    },
+
+    getEl() {
+        return this.el;
+    },
+
+    on(eventName, cb) {
+        this.events.on(eventName, cb);
+    },
+
+    /**
+     * Uzstāda datuma state
+     * State ir key => value objekts, kur key ir datums Y-m-d
+     * value varbūt jebkas. Value tiks padots uz monthDayFormatter
+     * Pats calendar value neizmanto
+     */
+    setState(state) {
+        this.state = state;
+
+        this.refresh();
+    },
+
+    setDate(date) {
+        this.date = cloneDate(date);
+        if (this.dateSwitch) {
+            this.dateSwitch.setDate(cloneDate(this.date));
+        }
+
+        this.baseDate = cloneDate(date);
+
+        this.infty.restart();
+    },
+
+    setSelectedDate(date) {
+        this.selectedDate = cloneDate(date);
+
+        this.setDate(cloneDate(this.selectedDate));
+    },
+
+    setSelectedPeriod(period) {
+        this.selectedPeriod = new Period(period);
+
+        this.refresh();
+    },
+
+    /**
+     * Period select režīms
+     *     true - būs period select režīms
+     *     false - nebūs period select režīms
+     */
+    setSelectPeriod(state) {
+        this.selectPeriod = state;
+
+        if (this.selectPeriod) {
+            this.showSelectedDate = false;
+        }
+        else {
+            this.showSelectedDate = true;
+            this.selectedPeriod = new Period(null);
+        }
+
+        this.refresh();
+    },
+
+    getDate() {
+        return cloneDate(this.date);
+    },
+
+    getSelectedDate() {
+        return this.selectedDate ? cloneDate(this.selectedDate) : null;
+    },
+
+    getSelectedPeriod() {
+        return this.selectedPeriod.toObj();
+    },
+
+    refresh() {
+        // Redecorate all slides
+        this.infty.getSlides().slides.forEach(slide => this.decorateSlideDates(slide))
+    },
+
+    destroy() {
+        // remove all event listenrs
+        //this.setEvents('remove');
 
         if (this.el) {
-            this.el.parentNode.removeChild(this.el);
+            remove(this.el);
             delete this.el;
         }
     }
 }
 
-module.exports = render;
+export default render;
