@@ -8,7 +8,7 @@ import isHigherMonthThan from '../isHigherMonthThan';
 import isLowerMonthThan from '../isLowerMonthThan';
 import isSameDate from '../isSameDate';
 import Period from '../period';
-import {jsx, qa, remove, append, replaceContent, hasClass, clickp} from 'dom-helpers';
+import {jsx, qa, remove, append, replaceContent, clickp} from 'dom-helpers';
 import {
     week as weekPeriod,
     monthWithFullWeeks as monthWithFullWeeksPeriod
@@ -155,6 +155,12 @@ render.prototype = {
         qa(slide.el, '[data-ts]').forEach(el => {
             let date = new Date(parseInt(el.dataset.ts, 10));
 
+            // Novācam pazīmes prevmonth, nextmonth, currmonth
+            delete el.dataset.prevmonth;
+            delete el.dataset.nextmonth;
+            delete el.dataset.currmonth;
+            delete el.dataset.today;
+
             // All available modifiers
             let classes = new ClassesList(this.cssPrefix, {
                 'calendar-date': true,
@@ -178,15 +184,21 @@ render.prototype = {
 
             if (isHigherMonthThan(date, slideDate)) {
                 classes.yes('calendar--nextmonth');
+
+                el.dataset.nextmonth = true;
             }
 
             if (isLowerMonthThan(date, slideDate)) {
                 classes.yes('calendar--prevmonth');
+
+                el.dataset.prevmonth = true;
             }
 
             if (this.showToday) {
                 if (isSameDate(date, this.today)) {
                     classes.yes('calendar--today');
+
+                    el.dataset.today = true;
                 }
             }
 
@@ -285,10 +297,10 @@ render.prototype = {
 
         if (changeSlide) {
             // Pārbaudām vai vajag pārslēgties uz prev/next mēnesi
-            if (hasClass(dateEl, 'calendar__date--prevmonth')) {
+            if (dateEl.dataset.prevmonth) {
                 setTimeout(() => this.infty.prevSlide(), 2);
             }
-            else if (hasClass(dateEl, 'calendar__date--nextmonth')) {
+            else if (dateEl.dataset.nextmonth) {
                 setTimeout(() => this.infty.nextSlide(), 2)
             }
         }
