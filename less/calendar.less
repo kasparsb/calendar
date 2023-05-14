@@ -18,7 +18,6 @@
         box-sizing: border-box;
     }
 
-
     // Calendar month/week grid
     &-grid {
         display: grid;
@@ -26,32 +25,16 @@
 
         >div {
             aspect-ratio: 1;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            align-self: start;
         }
     }
-
 
     &-switch {
         display: flex;
         flex-flow: row nowrap;
-        height: 40px;
-    }
-
-    &-nav,
-    &-datecaption {
-        display: flex;
-        justify-content: center;
-        align-items: center;
     }
 
     &-nav {
         flex: 0 0 40px;
-        cursor: pointer;
     }
 
     &-datecaption {
@@ -59,47 +42,48 @@
     }
 
 
-    &-weekdays {
+    // &-weekdays {
 
-    }
-    &-weekday {
+    // }
+    // &-weekday {
 
-    }
+    // }
 
-    // calendar dates container
-    &-dates {
+    // // calendar dates container
+    // &-dates {
 
-    }
-    &-date {
-        cursor: pointer;
-    }
+    // }
+    // &-date {
+
+    // }
 
 
 
-    // Modifiers
-    &--today {
+    // // Modifiers
+    // &--today {
 
-    }
+    // }
 
-    &--selected {
-        background-color: red;
-    }
+    // &--selected {
 
-    &--prevmonth,
-    &--nextmonth {
-        color: gray
-    }
+    // }
 
-    &--period-in {
-        background-color: #c9e1ff;
-    }
-    &--period-start,
-    &--period-end {
-        background-color: #194071;
-    }
+    // &--prevmonth,
+    // &--nextmonth {
 
-    &--wd-6,
-    &--wd-7 {
-        color: red;
-    }
+    // }
+
+    // &--period-in {
+
+    // }
+    // &--period-start,
+    // &--period-end {
+
+    // }
+
+    // // Weekend
+    // &--wd-6,
+    // &--wd-7 {
+
+    // }
 }
