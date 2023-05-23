@@ -1,5 +1,5 @@
 import dom from './dom/render';
 
-export {
+export default {
     dom
 }
