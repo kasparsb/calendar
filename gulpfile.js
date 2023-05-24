@@ -53,7 +53,7 @@ function bundleJs(browserify, compress, firstRun) {
         console.log(er.annotated);
     }
 
-    var destFileName = 'calendar.min-'+pkg.version+'.js';
+    var destFileName = 'calendar.min.js';
 
     var s = browserify;
 
@@ -126,7 +126,7 @@ function bundleLess(compress) {
                     console.log(er.filename+':'+er.line);
                 })
         )
-        .pipe(rename('calendar.min-'+pkg.version+'.css'))
+        .pipe(rename('calendar.min.css'))
         .pipe(gulp.dest(files.dest));
 }
 
