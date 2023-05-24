@@ -1,4 +1,4 @@
-import jsx from 'dom-helpers/src/jsx';
+import ce from 'dom-helpers/src/ce';
 import append from 'dom-helpers/src/append';
 import replaceContent from 'dom-helpers/src/replaceContent';
 
@@ -30,11 +30,20 @@ function createWeekDaysEl(props, cssPrefix) {
     weekdayToTextFormatter = props.get('weekDayToText', defaultWeekDayToText);
     let weekdayFormatter = props.get('weekDayFormatter', defaultWeekDayFormatter);
 
-    let el = <div class={cs('calendar-grid', 'calendar-weekdays')}></div>;
-
+    let el = ce(
+        'div',
+        {
+            class: cs('calendar-grid', 'calendar-weekdays')
+        }
+    );
 
     for (let dayIndex = 1; dayIndex <= 7; dayIndex++) {
-        let wdEl = append(el, <div class={cs('calendar-weekday', 'calendar--wd-'+dayIndex)}></div>);
+        let wdEl = append(el, ce(
+            'div',
+            {
+                class: cs('calendar-weekday', 'calendar--wd-'+dayIndex)
+            }
+        ));
 
         let wdContent = weekdayFormatter(dayIndex);
         if (wdContent) {

@@ -1,6 +1,6 @@
 import addDays from '../addDays';
 import cloneDate from '../cloneDate';
-import jsx from 'dom-helpers/src/jsx';
+import ce from 'dom-helpers/src/ce';
 
 function periodStructure(period) {
 
@@ -11,7 +11,14 @@ function periodStructure(period) {
     while (date.getTime() < period.till.getTime()) {
 
         r.push(
-            <div data-ts={date.getTime()}></div>
+            ce(
+                'div',
+                {
+                    data: {
+                        ts: date.getTime()
+                    }
+                }
+            )
         );
 
         date = addDays(date, 1);

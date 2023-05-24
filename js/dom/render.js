@@ -8,7 +8,7 @@ import isHigherMonthThan from '../isHigherMonthThan';
 import isLowerMonthThan from '../isLowerMonthThan';
 import isSameDate from '../isSameDate';
 import Period from '../period';
-import jsx from 'dom-helpers/src/jsx';
+import ce from 'dom-helpers/src/ce';
 import qa from 'dom-helpers/src/qa';
 import remove from 'dom-helpers/src/remove';
 import append from 'dom-helpers/src/append';
@@ -54,7 +54,11 @@ function render(baseDate, props) {
     let cs = classNames(this.cssPrefix);
 
     // Calendar dom elements
-    this.el = <div class={cs('calendar')}></div>
+    this.el = ce(
+        'div', {
+            class: cs('calendar')
+        }
+    )
     // Date switch el
     this.dateSwitch = null;
     if (this.props.get('showDateSwitch', true)) {
@@ -65,11 +69,21 @@ function render(baseDate, props) {
     if (this.props.get('showWeekdays', true)) {
         append(this.el, createWeekDaysEl(this.props, this.cssPrefix));
     }
-    this.slidesEl = append(this.el, <div class={cs('calendar-slides')}></div>);
+    this.slidesEl = append(this.el, ce(
+        'div',
+        {
+            class: cs('calendar-slides')
+        }
+    ));
     this.slideEls = append(
         this.slidesEl,
         Array(this.props.get('slidesCount', 5)).fill()
-            .map(() => <div class={cs('calendar-slide')}></div>));
+            .map(() => ce(
+                'div',
+                {
+                    class: cs('calendar-slide')
+                }
+            )));
 
     /**
      * Šis datums tiks izmantots, lai uzstādītu slaidos datumu
@@ -145,7 +159,13 @@ render.prototype = {
 
         let cs = classNames(this.cssPrefix);
 
-        let grid = append(slideEl, <div class={cs('calendar-grid', 'calendar-dates')}></div>);
+        let grid = append(slideEl, ce(
+            'div',
+            {
+                class: cs('calendar-grid', 'calendar-dates')
+            }
+        ));
+
         append(grid, periodStructure(
             this.createDatesPeriodByView(view, count, slideDate)
         ));
