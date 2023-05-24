@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
     <title>Basic calendar</title>
 
-    <link rel="stylesheet" href="../build/calendar.min-0.0.2.css" type="text/css" />
+    <link rel="stylesheet" href="../build/calendar.min.css" type="text/css" />
     <style>
         .container {
             margin: 80px auto;
             max-width: 400px;
+        }
+        .calendar1 {
+
         }
         .calendar1,
         .calendar2 {
@@ -74,11 +77,13 @@
     </div>
 
     <script src="./dom-helpers.min.js"></script>
-    <script src="../build/calendar.min-0.0.2.js"></script>
+    <script src="../build/calendar.min.js"></script>
 
     <script>
 
-        let calendar1 = new window.webit.calendar.dom(new Date(), {
+        let Calendar = window.webit.calendar.default;
+
+        let calendar1 = new Calendar.dom(new Date(), {
             view: 'week',
             count: 1,
         });
@@ -88,7 +93,7 @@
         document.querySelector('.calendar1').appendChild(calendar1.getEl())
 
 
-        let calendar2 = new window.webit.calendar.dom(new Date(), {
+        let calendar2 = new Calendar.dom(new Date(), {
             //cssprefix: '',
             view: 'month',
             count: 1,
@@ -110,10 +115,10 @@
                 }
 
                 el.innerHTML = date.getDate()+(dateState ? dateState : '');
-            },
-            weekDayToText: function(dayIndex) {
-                return ['', 'P', 'O', 'T', 'C', 'Pk', 'S', 'Sv'][dayIndex];
-            }
+            }//,
+            // weekDayToText: function(dayIndex) {
+            //     return ['', 'P', 'O', 'T', 'C', 'Pk', 'S', 'Sv'][dayIndex];
+            // }
         });
 
         // setInterval(function(){
