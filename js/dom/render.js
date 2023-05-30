@@ -28,6 +28,11 @@ import {
 
 function render(baseDate, props) {
 
+    // Infinity swipe reset timeout
+    this.irt = 0;
+    // Slides decorate timeout
+    this.sdt = 0;
+
     this.events = new CalendarEvents([
         'dateclick',
         'periodselect',
@@ -430,7 +435,15 @@ render.prototype = {
 
         this.baseDate = cloneDate(date);
 
-        this.infty.restart();
+        /**
+         * Ja izsauc uzreiz pēc calendar instances izveidošanas, tad vēl
+         * nav pieejams infinity.slides un ir error
+         * Tagad domāju, ka varbūt vispār vajag uzlikt throttle uz restart.
+         * Ja nu notiek ciklā izsaukšanas setDate, tad uz katru tiks izsaukts restart
+         */
+        clearTimeout(this.irt);
+        this.irt = setTimeout(() => this.infty.restart(), 10);
+
     },
 
     setSelectedDate(date) {
@@ -478,7 +491,8 @@ render.prototype = {
 
     refresh() {
         // Redecorate all slides
-        this.infty.getSlides().slides.forEach(slide => this.decorateSlideDates(slide))
+        clearTimeout(this.sdt);
+        this.sdt = setTimeout(() => this.infty.getSlides().slides.forEach(slide => this.decorateSlideDates(slide)), 10);
     },
 
     destroy() {
