@@ -1,0 +1,1 @@
+.wbcalendar{-webkit-tap-highlight-color:rgba(0,0,0,0);user-select:none}.wbcalendar-slides{position:relative;overflow:hidden;display:flex;flex-flow:row nowrap}.wbcalendar-slide{flex:0 0 100%;width:100%;box-sizing:border-box}.wbcalendar-grid{display:grid;grid-template-columns:repeat(7, 1fr)}.wbcalendar-switch{display:flex;flex-flow:row nowrap}
