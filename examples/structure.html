@@ -26,6 +26,21 @@
         .action h4 {
             margin-bottom: 0;
         }
+
+        .wbcalendar--selected {
+            background-color: #efefef;
+        }
+        .wbcalendar--period-in {
+            background-color: rgb(217, 180, 252);
+        }
+        .wbcalendar--period-start {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+        .wbcalendar--period-end {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -92,6 +107,8 @@
         })
         document.querySelector('.calendar1').appendChild(calendar1.getEl())
 
+        calendar1.setSelectedDate(new Date());
+
 
         let calendar2 = new Calendar.dom(new Date(), {
             //cssprefix: '',
@@ -119,6 +136,11 @@
             // weekDayToText: function(dayIndex) {
             //     return ['', 'P', 'O', 'T', 'C', 'Pk', 'S', 'Sv'][dayIndex];
             // }
+        });
+
+        calendar2.setSelectedPeriod({
+            from: new Date('2023-05-08 00:00:00'),
+            till: new Date('2023-05-12 23:59:59')
         });
 
         // setInterval(function(){
