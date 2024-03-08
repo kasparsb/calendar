@@ -57,6 +57,7 @@ function render(baseDate, props) {
     this.cssPrefix = this.props.get('cssprefix', 'wb');
 
     this.state = null;
+    this.stateUrl = this.props.get('stateUrl');
 
     let cs = classNames(this.cssPrefix);
 
@@ -146,11 +147,6 @@ render.prototype = {
 
         this.infty.onChange(() => this.handleSlideChange())
         this.infty.onSlidesChange((slides) => this.handleSlidesChange(slides))
-
-        // StateUrl liekam uz slides change
-        if (this.props.get('stateUrl')) {
-            this.infty.onSlidesChange(slides => this.loadStateFromUrl(slides))
-        }
 
         // Event listeners are by data attributes. To be independant of class names
         clickp(this.el, '[data-ts]', (ev, el) => this.handleDateClick(el))
@@ -304,12 +300,20 @@ render.prototype = {
             let newContentEl;
             // Ja ir user definēts formatter, tad tas ir galvenais
             if (this.isCustomDateFormatter || !isStateHtml) {
-                newContentEl = this.dateFormatter(cloneDate(date), contentEl, dateState);
+                // Ja bija custom html un tagad vairs nav html, tad padoda null, lai dateFormatter izveido jaunu content
+                if (el.dataset.isHtml) {
+                    newContentEl = this.dateFormatter(cloneDate(date), null, dateState);
+                }
+                else {
+                    newContentEl = this.dateFormatter(cloneDate(date), contentEl, dateState);
+                }
                 if (newContentEl) {
                     replaceContent(el, newContentEl);
                 }
+                delete el.dataset.isHtml;
             }
             else {
+                el.dataset.isHtml = 'yes';
                 el.innerHTML = dateState.html;
             }
 
@@ -415,9 +419,13 @@ render.prototype = {
      * palaižam event un tajā padodam visus ielādēto kalendāru mēnešus
      */
     handleSlidesChange(slides) {
-        this.events.fire('slideschange', [
-            slides.map(slide => slide.getData('date'))
-        ]);
+        let dates = slides.map(slide => slide.getData('date'));
+
+        if (this.stateUrl) {
+            this.loadStateFromUrl(dates)
+        }
+
+        this.events.fire('slideschange', [dates]);
     },
 
     getDateState(date) {
@@ -430,16 +438,12 @@ render.prototype = {
     },
 
     /**
-     * Ja ir uzlikts statusUrl, tad ielādējam datumu statusu no šī url
+     * Ja ir uzlikts stateUrl, tad ielādējam datumu statusu no šī url
      */
-    loadStateFromUrl(slides) {
-        //this.props.get('statusUrl')
-        let period = findMinMaxDates(
-            // Savācam date no katra slide
-            slides.map(slide => slide.getData('date'))
-        )
+    loadStateFromUrl(dates) {
+        let period = findMinMaxDates(dates)
 
-        get(this.props.get('stateUrl'), {
+        get(this.stateUrl, {
             from: ymd(period.min),
             till: ymd(period.max)
         })
@@ -494,6 +498,28 @@ render.prototype = {
         this.refresh();
     },
 
+    /**
+     * Uzstāda state url
+     * Vai arī noņem, ja padots tukšums
+     */
+    setStateUrl(stateUrl) {
+        if (this.stateUrl == stateUrl) {
+            return;
+        }
+
+        this.stateUrl = stateUrl;
+
+        // Notīrām state
+        this.state = null;
+
+        if (this.stateUrl) {
+            this.loadStateFromUrl(this.infty.getSlides().slides.map(slide => slide.getData('date')))
+        }
+        else {
+            this.refresh();
+        }
+    },
+
     setDate(date) {
         this.date = cloneDate(date);
         if (this.dateSwitch) {
@@ -543,6 +569,7 @@ render.prototype = {
 
         this.refresh();
     },
+
 
     getDate() {
         return cloneDate(this.date);
