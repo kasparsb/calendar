@@ -7,11 +7,13 @@ import dayOfWeek from '../dayOfWeek';
 import isHigherMonthThan from '../isHigherMonthThan';
 import isLowerMonthThan from '../isLowerMonthThan';
 import isSameDate from '../isSameDate';
+import findMinMaxDates from '../findMinMaxDates';
 import Period from '../period';
 import ce from 'dom-helpers/src/ce';
 import qa from 'dom-helpers/src/qa';
 import remove from 'dom-helpers/src/remove';
 import append from 'dom-helpers/src/append';
+import get from 'dom-helpers/src/http/get';
 import replaceContent from 'dom-helpers/src/replaceContent';
 import clickp from 'dom-helpers/src/event/clickp';
 import periodStructure from './periodStructure';
@@ -123,6 +125,15 @@ function render(baseDate, props) {
 
     this.selectedPeriod = new Period(this.props.get('selectedPeriod', null));
 
+    // Have user provided custom date formatter
+    this.isCustomDateFormatter = true;
+    // Calendar month date formatter
+    this.dateFormatter = this.props.get('monthDayFormatter');
+    if (!this.dateFormatter) {
+        this.isCustomDateFormatter = false;
+        this.dateFormatter = defaultMonthDayFormatter;
+    }
+
     this.initInfinitySwipe();
 
     this.setEvents();
@@ -135,6 +146,11 @@ render.prototype = {
 
         this.infty.onChange(() => this.handleSlideChange())
         this.infty.onSlidesChange((slides) => this.handleSlidesChange(slides))
+
+        // StateUrl liekam uz slides change
+        if (this.props.get('stateUrl')) {
+            this.infty.onSlidesChange(slides => this.loadStateFromUrl(slides))
+        }
 
         // Event listeners are by data attributes. To be independant of class names
         clickp(this.el, '[data-ts]', (ev, el) => this.handleDateClick(el))
@@ -184,16 +200,32 @@ render.prototype = {
 
         qa(slide.el, '[data-ts]').forEach(el => {
             let date = new Date(parseInt(el.dataset.ts, 10));
+            /**
+             * State vai nu no stateUrl vai custom set caur setState
+             *
+             * Te ir daži state parametri, kurus kalendārs ņems vērā
+             *     disabled - vai datums ir pieejams
+             *     html - month date cell html, šis tiks ielikts šūnā
+             */
+            let dateState = this.getDateState(date);
+
+            // Pēc noklusējuma datums nav disabled
+            let isDateDisabled = false;
+            if (dateState && (typeof dateState.disabled != 'undefined')) {
+                isDateDisabled = dateState.disabled ? true : false;
+            }
 
             // Novācam pazīmes prevmonth, nextmonth, currmonth
             delete el.dataset.prevmonth;
             delete el.dataset.nextmonth;
             delete el.dataset.currmonth;
             delete el.dataset.today;
+            delete el.dataset.disabled;
 
             // All available modifiers
             let classes = new ClassesList(this.cssPrefix, {
                 'calendar-date': true,
+                'calendar--date-disabled': false,
                 'calendar--wd-1': false,
                 'calendar--wd-2': false,
                 'calendar--wd-3': false,
@@ -211,6 +243,11 @@ render.prototype = {
             })
 
             classes.yes('calendar--wd-'+dayOfWeek(date));
+
+            if (isDateDisabled) {
+                el.dataset.disabled = 'disabled';
+                classes.yes('calendar--date-disabled');
+            }
 
             if (isHigherMonthThan(date, slideDate)) {
                 classes.yes('calendar--nextmonth');
@@ -251,23 +288,26 @@ render.prototype = {
                 classes.yes('calendar--period-in');
             }
 
-
-            // Formatter
-            let dateFormatter = this.props.get('monthDayFormatter');
-            if (!dateFormatter) {
-                dateFormatter = defaultMonthDayFormatter;
-            }
-
             let contentEl = el.childNodes.length > 0 ? el.childNodes[0] : null;
 
-            /**
-             * @todo šeit līdzi jāpadod konkrētā datuma state, kāds nu tas
-             * ir uzlikts state uzliek enduser. Vai objekts vai kāda cita vērtība
-             */
-            let newContentEl = dateFormatter(cloneDate(date), contentEl, this.getDateState(date));
-            if (newContentEl) {
-                replaceContent(el, newContentEl);
+
+            let isStateHtml = false;
+            if (dateState && (typeof dateState.html != 'undefined')) {
+                isStateHtml = true;
             }
+
+            let newContentEl;
+            // Ja ir user definēts formatter, tad tas ir galvenais
+            if (this.isCustomDateFormatter || !isStateHtml) {
+                newContentEl = this.dateFormatter(cloneDate(date), contentEl, dateState);
+                if (newContentEl) {
+                    replaceContent(el, newContentEl);
+                }
+            }
+            else {
+                el.innerHTML = dateState.html;
+            }
+
 
 
             el.className = classes.className();
@@ -291,6 +331,11 @@ render.prototype = {
     },
 
     handleDateClick(dateEl) {
+
+        // Vai ir disabled
+        if (dateEl.dataset.disabled == 'disabled') {
+            return;
+        }
 
         let date = new Date(parseInt(dateEl.dataset.ts, 10));
 
@@ -377,6 +422,23 @@ render.prototype = {
 
         let k = ymd(date);
         return this.state[k];
+    },
+
+    /**
+     * Ja ir uzlikts statusUrl, tad ielādējam datumu statusu no šī url
+     */
+    loadStateFromUrl(slides) {
+        //this.props.get('statusUrl')
+        let period = findMinMaxDates(
+            // Savācam date no katra slide
+            slides.map(slide => slide.getData('date'))
+        )
+
+        get(this.props.get('stateUrl'), {
+            from: ymd(period.min),
+            till: ymd(period.max)
+        })
+            .then(state => this.setState(state))
     },
 
     /**
