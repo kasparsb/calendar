@@ -13,6 +13,7 @@ while ($current <= $till) {
     $state[date('Y-m-d', $current)] = [
         'disabled' => rand(0, 1) ? true : false,
         'html' => date('d', $current).' <b>asd</b>',
+        'cssClass' => 'random-'.rand(1, 4).' asdasd',
     ];
     // Add day
     $current += 60 * 60 * 24;
