@@ -65,6 +65,9 @@
 <body>
     <div class="container">
         <div class="calendar"></div>
+        <button name="setstateurl" onclick="setPrevStateUrl()">Set state url V1</button>
+        <button name="setstateurl" onclick="setNewStateUrl()">Set state url V2</button>
+        <button name="setstateurl" onclick="removeStateUrl()">Remove state url</button>
     </div>
 
     <script src="./dom-helpers.min.js"></script>
@@ -109,6 +112,15 @@
 
         calendar.setSelectedDate(new Date());
 
+        function setPrevStateUrl() {
+            calendar.setStateUrl('calendar-state.php');
+        }
+        function setNewStateUrl() {
+            calendar.setStateUrl('calendar-state.php?v=2');
+        }
+        function removeStateUrl() {
+            calendar.setStateUrl('');
+        }
 
 
 
