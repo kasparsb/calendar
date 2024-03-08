@@ -242,6 +242,11 @@ render.prototype = {
                 'calendar--period-in': false
             })
 
+            // Custom css class name
+            if (dateState && typeof dateState.cssClass != 'undefined') {
+                dateState.cssClass.split(' ').forEach(className => classes.yes(className));
+            }
+
             classes.yes('calendar--wd-'+dayOfWeek(date));
 
             if (isDateDisabled) {
