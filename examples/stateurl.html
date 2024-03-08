@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
+    <title>Basic calendar</title>
+
+    <link rel="stylesheet" href="../build/calendar.min.css" type="text/css" />
+    <style>
+        .container {
+            margin: 80px auto;
+            max-width: 400px;
+        }
+        .calendar1 {
+
+        }
+        .calendar1,
+        .calendar2 {
+            margin-bottom: 20px;
+        }
+        form,
+        .action {
+            margin-top: 20px;
+        }
+        form h4,
+        .action h4 {
+            margin-bottom: 0;
+        }
+
+        .wbcalendar--selected {
+            background-color: #efefef;
+        }
+        .wbcalendar--period-in {
+            background-color: rgb(217, 180, 252);
+        }
+        .wbcalendar--period-start {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+        .wbcalendar--period-end {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        .wbcalendar--date-disabled {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calendar"></div>
+    </div>
+
+    <script src="./dom-helpers.min.js"></script>
+    <script src="../build/calendar.min.js"></script>
+
+    <script>
+
+        let Calendar = window.webit.calendar.default;
+
+        let calendar = new Calendar.dom(new Date(), {
+            view: 'month',
+            count: 1,
+            showWeekdays: true,
+            showDateSwitch: true,
+            showToday: false,
+            // pazīme, ka jāļauj atzīmēt period
+            selectPeriod: true,
+            selectedPeriod: {
+                from: new Date('2023-05-10 00:00:00'),
+                till: new Date('2023-05-22 23:59:59')
+            },
+            // monthDayFormatter: function(date, el, dateState){
+
+            //     if (!el) {
+            //         el = document.createElement('div');
+            //         el.innerHTML = date.getDate();
+            //         return el;
+            //     }
+
+            //     el.innerHTML = date.getDate()+(dateState ? dateState : '');
+            // },
+            stateUrl: 'calendar-state.php'
+            //,
+            // weekDayToText: function(dayIndex) {
+            //     return ['', 'P', 'O', 'T', 'C', 'Pk', 'S', 'Sv'][dayIndex];
+            // }
+        });
+        calendar.on('dateclick', date => {
+            console.log('week date click', date);
+        })
+        document.querySelector('.calendar').appendChild(calendar.getEl())
+
+        calendar.setSelectedDate(new Date());
+
+
+
+
+    </script>
+</body>
+</html>
