@@ -2,7 +2,7 @@ import ce from 'dom-helpers/src/ce';
 import q from 'dom-helpers/src/q';
 import replaceContent from 'dom-helpers/src/replaceContent';
 
-import {ymd} from '../formatDate';
+import {Fy} from '../formatDate';
 import {classNames} from './CssClassNames';
 
 function defaultNavPrevFormatter() {
@@ -13,8 +13,8 @@ function defaultNavNextFormatter() {
     return '>';
 }
 
-function defaultFullDateFormatter(date) {
-    return ymd(date);
+function defaultDateCaptionFormatter(date) {
+    return Fy(date);
 }
 
 function createDateSwitchEl(date, props, cssPrefix) {
@@ -23,7 +23,7 @@ function createDateSwitchEl(date, props, cssPrefix) {
 
     let navPrevFormatter = props.get('navPrevFormatter', defaultNavPrevFormatter);
     let navNextFormatter = props.get('navNextFormatter', defaultNavNextFormatter);
-    let fullDateFormatter = props.get('fullDateFormatter', defaultFullDateFormatter);
+    let dateCaptionFormatter = props.get('dateCaptionFormatter', defaultDateCaptionFormatter);
 
 
     /**
@@ -68,7 +68,7 @@ function createDateSwitchEl(date, props, cssPrefix) {
     );
 
     replaceContent(q(el, '[data-navprev]'), navPrevFormatter());
-    replaceContent(q(el, '[data-datecaption]'), fullDateFormatter(date));
+    replaceContent(q(el, '[data-datecaption]'), dateCaptionFormatter(date));
     replaceContent(q(el, '[data-navnext]'), navNextFormatter());
 
     return {
@@ -76,7 +76,7 @@ function createDateSwitchEl(date, props, cssPrefix) {
             return el;
         },
         setDate(date) {
-            replaceContent(q(el, '[data-datecaption]'), fullDateFormatter(date));
+            replaceContent(q(el, '[data-datecaption]'), dateCaptionFormatter(date));
         }
     }
 }

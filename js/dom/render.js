@@ -30,6 +30,18 @@ import {
 
 function render(baseDate, props) {
 
+    this.props = new Properties(props);
+
+    /**
+     * fullDateFormatter ir pārsaukts par dateCaptionFormatter
+     * metam paziņojumu consolē
+     */
+    if (this.props.get('fullDateFormatter')) {
+        console.warn('Calendar: fullDateFormatter is renamed to dateCaptionFormatter');
+    }
+
+
+
     // Infinity swipe reset timeout
     this.irt = 0;
     // Slides decorate timeout
@@ -51,8 +63,6 @@ function render(baseDate, props) {
         // Visu ielādēto slide events
         'slideschange'
     ]);
-
-    this.props = new Properties(props);
 
     this.cssPrefix = this.props.get('cssprefix', 'wb');
 
