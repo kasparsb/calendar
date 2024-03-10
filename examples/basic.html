@@ -12,47 +12,98 @@
         }
         section {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100dvh;
         }
-        .calendar {
+        .calendar2 {
+            margin-top: 90px;
+        }
+
+        .calendar,
+        .calendar2 {
             width: 400px;
+
+            --date-width: 55px;
+            --date-height: 51px;
+            --date-border-radius: 5px;
+            --grid-gap: 2px;
+
+            width: calc(var(--date-width) * 7 - var(--grid-gap) * 6);
+        }
+
+
+        .wbcalendar-grid {
+            gap: var(--grid-gap);
         }
         .wbcalendar-switch {
             margin-bottom: 1rem;
         }
         .wbcalendar-weekday {
-            width: 50px;
             height: 30px;
         }
+        /** 1. Base date formatting */
         .wbcalendar-date {
-            width: 50px;
-            height: 50px;
+
+            height: var(--date-height);
+
+            padding: 4px;
+
             color: #000;
             cursor: pointer;
             font-weight: 600;
+
+            box-sizing: border-box;
+
+            border-radius: var(--date-border-radius);
         }
         .wbcalendar-date:hover {
-            background-color: #e1e1e1;
+            background-color: #ececec;
         }
+        /** 2. Today */
         .wbcalendar--today {
             background-color: #e1e1e1;
         }
+        .wbcalendar--period-in {
+            background-color: #e1e1e1;
+            border-radius: 0;
+        }
+        .wbcalendar--period-start,
+        .wbcalendar--period-end {
+            border-radius: var(--date-border-radius);
+            background-color: #000;
+            color: #fff
+        }
+        .wbcalendar--period-start {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .wbcalendar--period-end {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        /** 3. User selected date */
         .wbcalendar--selected {
             background-color: #000;
             color: #fff;
         }
+        .wbcalendar--period-in:hover {
+            background-color: #ececec;
+        }
+        .wbcalendar--period-start:hover,
+        .wbcalendar--period-end:hover,
         .wbcalendar--selected:hover {
             background-color: #4d4d4d;
             color: #fff;
         }
+        /** 4. Prev next months */
         .wbcalendar--prevmonth,
             .wbcalendar--nextmonth {
             color: silver;
             font-weight: 500;
         }
+        /** 5. Disabled date */
         .wbcalendar--date-disabled {
             cursor: default;
             color: silver;
@@ -66,6 +117,7 @@
 <body>
     <section>
         <div class="calendar"></div>
+        <div class="calendar2"></div>
     </section>
 
     <script src="../build/calendar.min.js"></script>
@@ -83,8 +135,8 @@
             disablePrevMonthDate: true,
             disableNextMonthDate: true,
             // mazākais datums, kurš būs disabled=false
-            minDate: '2024-02-10',
-            //maxDate: '2024-03-20',
+            minDate: '2024-03-05',
+            maxDate: '2024-03-20',
             // Noklusētā date state. Šo var vēlāk override
             defaultDateState: {
                 // visi datumi būs disabled, ja vien ar state netiks disabled uzlikts uz false
@@ -100,6 +152,38 @@
         calendar.setDateState('2024-03-28', {disabled: false})
 
         document.querySelector('.calendar').appendChild(calendar.getEl())
+
+
+
+
+        let calendar2 = new Calendar.dom(new Date(), {
+            view: 'month',
+            count: 1,
+            showWeekdays: true,
+            showDateSwitch: true,
+            showToday: true,
+            // Vai ļaut klikšķināt uz prev/next month datumiem
+            disablePrevMonthDate: true,
+            disableNextMonthDate: true,
+            // mazākais datums, kurš būs disabled=false
+            minDate: '2024-03-05',
+            maxDate: '2024-03-20',
+            // Noklusētā date state. Šo var vēlāk override
+            defaultDateState: {
+                // visi datumi būs disabled, ja vien ar state netiks disabled uzlikts uz false
+                //disabled: true
+            },
+            selectPeriod: true
+        });
+
+        calendar2.setDateState('2024-03-12', {disabled: false})
+        calendar2.setDateState('2024-03-14', {disabled: false})
+        calendar2.setDateState('2024-03-16', {disabled: false})
+        calendar2.setDateState('2024-03-20', {disabled: false})
+        calendar2.setDateState('2024-03-22', {disabled: false})
+        calendar2.setDateState('2024-03-28', {disabled: false})
+
+        document.querySelector('.calendar2').appendChild(calendar2.getEl())
 
     </script>
 </body>
