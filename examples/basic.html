@@ -7,91 +7,100 @@
 
     <link rel="stylesheet" href="../build/calendar.min.css" type="text/css" />
     <style>
-        .container2 {
-            margin: 80px 0;
+        body, html {
+            min-height: 100dvh;
+        }
+        section {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            height: 100dvh;
+        }
+        .calendar {
+            width: 400px;
+        }
+        .wbcalendar-switch {
+            margin-bottom: 1rem;
+        }
+        .wbcalendar-weekday {
+            width: 50px;
+            height: 30px;
+        }
+        .wbcalendar-date {
+            width: 50px;
+            height: 50px;
+            color: #000;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .wbcalendar-date:hover {
+            background-color: #e1e1e1;
+        }
+        .wbcalendar--today {
+            background-color: #e1e1e1;
+        }
+        .wbcalendar--selected {
+            background-color: #000;
+            color: #fff;
+        }
+        .wbcalendar--selected:hover {
+            background-color: #4d4d4d;
+            color: #fff;
+        }
+        .wbcalendar--prevmonth,
+            .wbcalendar--nextmonth {
+            color: silver;
+            font-weight: 500;
+        }
+        .wbcalendar--date-disabled {
+            cursor: default;
+            color: silver;
+            font-weight: 500;
+        }
+        .wbcalendar--date-disabled:not(.wbcalendar--today):hover {
+            background-color: transparent;
         }
     </style>
 </head>
 <body>
-    <div class="container"></div>
-    <div class="container2"></div>
-
-    
-    <button type="button" class="create">Create</button>
-    <button type="button" class="destroy">Destroy</button>
+    <section>
+        <div class="calendar"></div>
+    </section>
 
     <script src="../build/calendar.min.js"></script>
-    
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script>
 
-        (function($){
+        var Calendar = window.webit.calendar.default;
 
-            var calendar1, calendar2;
+        let calendar = new Calendar.dom(new Date(), {
+            view: 'month',
+            count: 1,
+            showWeekdays: true,
+            showDateSwitch: true,
+            showToday: true,
+            // Vai ļaut klikšķināt uz prev/next month datumiem
+            disablePrevMonthDate: true,
+            disableNextMonthDate: true,
+            // mazākais datums, kurš būs disabled=false
+            minDate: '2024-02-10',
+            //maxDate: '2024-03-20',
+            // Noklusētā date state. Šo var vēlāk override
+            defaultDateState: {
+                // visi datumi būs disabled, ja vien ar state netiks disabled uzlikts uz false
+                //disabled: true
+            },
+        });
 
-            function strpad(str, length, pad) {
-                str = str+'';
-                while (str.length < length) {
-                    str = pad+str
-                }
-                return str;
-            }
+        calendar.setDateState('2024-03-12', {disabled: false})
+        calendar.setDateState('2024-03-14', {disabled: false})
+        calendar.setDateState('2024-03-16', {disabled: false})
+        calendar.setDateState('2024-03-20', {disabled: false})
+        calendar.setDateState('2024-03-22', {disabled: false})
+        calendar.setDateState('2024-03-28', {disabled: false})
 
-            function create($container) {
-                
-                var c = new window.webit.calendar.dom(new Date(), {
-                    monthDayFormatter: function(date, currentEl) {
-                        if (currentEl) {
-                            $(currentEl).html(date.date.getDate());
-                        }
-                        else {
-                            currentEl = $('<div class="date-w" />').html(date.date.getDate()).get(0);
-                        }
+        document.querySelector('.calendar').appendChild(calendar.getEl())
 
-                        return currentEl;
-                    },
-                    fullDateFormatter: function(date) {
-                        return strpad(date.getDate(), 2, '0')+'.'+(strpad(date.getMonth()+1, 2, '0'))+'.'+date.getFullYear()
-                    },
-                    navNextFormatter: function() {
-                        return 'next'
-                    },
-                    navPrevFormatter: function() {
-                        return 'prev'
-                    }
-                })
-
-                $container.append(c.getEl())
-
-                return c;
-            }
-
-            
-            calendar1 = create($('.container'));
-            calendar2 = create($('.container2'));
-
-            $(document).on('click', '.create', function(ev){
-                ev.preventDefault();
-
-                calendar1 = create($('.container'));
-                calendar2 = create($('.container2'));
-            })
-
-            $(document).on('click', '.destroy', function(ev){
-                ev.preventDefault();
-
-                if (calendar1) {
-                    calendar1.destroy();
-                    calendar1 = null;
-                }
-
-                if (calendar2) {
-                    calendar2.destroy();
-                    calendar2 = null;
-                }
-            })
-
-        })(jQuery)
     </script>
 </body>
 </html>
