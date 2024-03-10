@@ -120,7 +120,7 @@ function render(baseDate, props) {
     this.date = cloneDate(baseDate);
 
     // Vai atzīmēt šodienas datumu
-    this.showToday = this.props.get('showToday', true);
+    this.showToday = this.props.get('showToday', false);
     this.today = new Date();
 
     this.showSelectedDate = this.props.get('showSelectedDate', true);
