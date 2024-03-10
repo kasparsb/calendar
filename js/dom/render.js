@@ -77,7 +77,7 @@ function render(baseDate, props) {
 
     this.cssPrefix = this.props.get('cssprefix', 'wb');
 
-    this.state = null;
+    this.state = this.props.get('state')
     this.stateUrl = this.props.get('stateUrl');
 
     let cs = classNames(this.cssPrefix);
