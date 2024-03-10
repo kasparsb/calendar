@@ -589,12 +589,12 @@ render.prototype = {
     },
 
     setDate(date) {
-        this.date = cloneDate(date);
+        this.date = cloneDate(toDate(date));
         if (this.dateSwitch) {
             this.dateSwitch.setDate(cloneDate(this.date));
         }
 
-        this.baseDate = cloneDate(date);
+        this.baseDate = cloneDate(this.date);
 
         /**
          * Ja izsauc uzreiz pēc calendar instances izveidošanas, tad vēl
@@ -608,7 +608,7 @@ render.prototype = {
     },
 
     setSelectedDate(date) {
-        this.selectedDate = cloneDate(date);
+        this.selectedDate = cloneDate(toDate(date));
 
         this.setDate(cloneDate(this.selectedDate));
     },
