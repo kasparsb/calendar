@@ -80,6 +80,8 @@ function render(baseDate, props) {
     this.state = this.props.get('state')
     this.stateUrl = this.props.get('stateUrl');
 
+    this.defaultDateState = this.props.get('defaultDateState');
+
     let cs = classNames(this.cssPrefix);
 
     // Calendar dom elements
@@ -475,10 +477,9 @@ render.prototype = {
     },
 
     getDateState(date) {
-        let defaultDateState = this.props.get('defaultDateState');
         if (!this.state) {
-            if (defaultDateState) {
-                return defaultDateState;
+            if (this.defaultDateState) {
+                return this.defaultDateState;
             }
             return undefined;
         }
@@ -489,8 +490,8 @@ render.prototype = {
             return dateState;
         }
 
-        if (defaultDateState) {
-            return defaultDateState;
+        if (this.defaultDateState) {
+            return this.defaultDateState;
         }
 
         return undefined;
@@ -564,6 +565,10 @@ render.prototype = {
             this.state = {};
         }
         this.state[k] = state;
+    },
+
+    setDefaultDateState(defaultDateState) {
+        this.defaultDateState = defaultDateState;
     },
 
     /**
