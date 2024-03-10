@@ -206,6 +206,7 @@ render.prototype = {
 
         qa(slide.el, '[data-ts]').forEach(el => {
             let date = new Date(parseInt(el.dataset.ts, 10));
+
             /**
              * State vai nu no stateUrl vai custom set caur setState
              *
@@ -215,10 +216,21 @@ render.prototype = {
              */
             let dateState = this.getDateState(date);
 
+            let isPrevMonth = isLowerMonthThan(date, slideDate);
+            let isNextMonth = isHigherMonthThan(date, slideDate);
+
             // Pēc noklusējuma datums nav disabled
             let isDateDisabled = false;
             if (dateState && (typeof dateState.disabled != 'undefined')) {
                 isDateDisabled = dateState.disabled ? true : false;
+            }
+
+            // Prev/next month date disable
+            if (this.props.get('disablePrevMonthDate') && isPrevMonth) {
+                isDateDisabled = true;
+            }
+            if (this.props.get('disableNextMonthDate') && isNextMonth) {
+                isDateDisabled = true;
             }
 
             // Novācam pazīmes prevmonth, nextmonth, currmonth
@@ -256,20 +268,21 @@ render.prototype = {
             classes.yes('calendar--wd-'+dayOfWeek(date));
 
             if (isDateDisabled) {
-                el.dataset.disabled = 'disabled';
                 classes.yes('calendar--date-disabled');
+
+                el.dataset.disabled = 'disabled';
             }
 
-            if (isHigherMonthThan(date, slideDate)) {
-                classes.yes('calendar--nextmonth');
-
-                el.dataset.nextmonth = true;
-            }
-
-            if (isLowerMonthThan(date, slideDate)) {
+            if (isPrevMonth) {
                 classes.yes('calendar--prevmonth');
 
                 el.dataset.prevmonth = true;
+            }
+
+            if (isNextMonth) {
+                classes.yes('calendar--nextmonth');
+
+                el.dataset.nextmonth = true;
             }
 
             if (this.showToday) {
