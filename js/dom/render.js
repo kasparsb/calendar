@@ -5,7 +5,9 @@ import addWeeks from '../addWeeks';
 import addMonths from '../addMonths';
 import dayOfWeek from '../dayOfWeek';
 import isHigherMonthThan from '../isHigherMonthThan';
+import isHigherDateThan from '../isHigherDateThan';
 import isLowerMonthThan from '../isLowerMonthThan';
+import isLowerDateThan from '../isLowerDateThan';
 import isSameDate from '../isSameDate';
 import findMinMaxDates from '../findMinMaxDates';
 import Period from '../period';
@@ -21,7 +23,7 @@ import CalendarEvents from './calendarEvents';
 import defaultMonthDayFormatter from './defaultMonthDayFormatter';
 import createWeekDaysEl from './createWeekDaysEl';
 import createDateSwitchEl from './createDateSwitchEl';
-import {ymd} from '../formatDate';
+import {ymd, toDate} from '../formatDate';
 import {classNames, ClassesList} from './CssClassNames';
 import {
     week as weekPeriod,
@@ -40,7 +42,16 @@ function render(baseDate, props) {
         console.warn('Calendar: fullDateFormatter is renamed to dateCaptionFormatter');
     }
 
+    // Mazākais datums, kurš nav disabled
+    this.minDate = this.props.get('minDate');
+    if (this.minDate) {
+        this.minDate = toDate(this.minDate);
+    }
 
+    this.maxDate = this.props.get('maxDate');
+    if (this.maxDate) {
+        this.maxDate = toDate(this.maxDate);
+    }
 
     // Infinity swipe reset timeout
     this.irt = 0;
@@ -223,6 +234,18 @@ render.prototype = {
             let isDateDisabled = false;
             if (dateState && (typeof dateState.disabled != 'undefined')) {
                 isDateDisabled = dateState.disabled ? true : false;
+            }
+
+            if (this.minDate) {
+                if (isLowerDateThan(date, this.minDate)) {
+                    isDateDisabled = true;
+                }
+            }
+
+            if (this.maxDate) {
+                if (isHigherDateThan(date, this.maxDate)) {
+                    isDateDisabled = true;
+                }
             }
 
             // Prev/next month date disable
