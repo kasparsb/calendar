@@ -620,13 +620,13 @@ render.prototype = {
     },
 
     setMinDate(date) {
-        this.minDate = date ? toDate(this.minDate) : undefined;
+        this.minDate = date ? toDate(date) : undefined;
 
         this.refresh();
     },
 
     setMaxDate(date) {
-        this.maxDate = date ? toDate(this.maxDate) : undefined;
+        this.maxDate = date ? toDate(date) : undefined;
 
         this.refresh();
     },
