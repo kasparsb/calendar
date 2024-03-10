@@ -65,6 +65,13 @@
         .wbcalendar--today {
             background-color: #e1e1e1;
         }
+        /** 3. Prev next months */
+        .wbcalendar--prevmonth,
+            .wbcalendar--nextmonth {
+            color: silver;
+            font-weight: 500;
+        }
+        /** 4. Period */
         .wbcalendar--period-in {
             background-color: #e1e1e1;
             border-radius: 0;
@@ -83,27 +90,24 @@
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
         }
-        /** 3. User selected date */
-        .wbcalendar--selected {
-            background-color: #000;
-            color: #fff;
-        }
         .wbcalendar--period-in:hover {
             background-color: #ececec;
         }
         .wbcalendar--period-start:hover,
-        .wbcalendar--period-end:hover,
+        .wbcalendar--period-end:hover {
+            background-color: #4d4d4d;
+            color: #fff;
+        }
+        /** 5. User selected date */
+        .wbcalendar--selected {
+            background-color: #000;
+            color: #fff;
+        }
         .wbcalendar--selected:hover {
             background-color: #4d4d4d;
             color: #fff;
         }
-        /** 4. Prev next months */
-        .wbcalendar--prevmonth,
-            .wbcalendar--nextmonth {
-            color: silver;
-            font-weight: 500;
-        }
-        /** 5. Disabled date */
+        /** 6. Disabled date */
         .wbcalendar--date-disabled {
             cursor: default;
             color: silver;
@@ -135,8 +139,8 @@
             disablePrevMonthDate: true,
             disableNextMonthDate: true,
             // mazākais datums, kurš būs disabled=false
-            minDate: '2024-03-05',
-            maxDate: '2024-03-20',
+            //minDate: '2024-03-05',
+            //maxDate: '2024-03-20',
             // Noklusētā date state. Šo var vēlāk override
             defaultDateState: {
                 // visi datumi būs disabled, ja vien ar state netiks disabled uzlikts uz false
@@ -184,6 +188,7 @@
         calendar2.setDateState('2024-03-28', {disabled: false})
 
         document.querySelector('.calendar2').appendChild(calendar2.getEl())
+
 
     </script>
 </body>
