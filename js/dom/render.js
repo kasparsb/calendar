@@ -452,12 +452,25 @@ render.prototype = {
     },
 
     getDateState(date) {
+        let defaultDateState = this.props.get('defaultDateState');
         if (!this.state) {
+            if (defaultDateState) {
+                return defaultDateState;
+            }
             return undefined;
         }
 
-        let k = ymd(date);
-        return this.state[k];
+        let dateState = this.state[ymd(date)];
+
+        if (dateState) {
+            return dateState;
+        }
+
+        if (defaultDateState) {
+            return defaultDateState;
+        }
+
+        return undefined;
     },
 
     /**
@@ -519,6 +532,15 @@ render.prototype = {
         this.state = state;
 
         this.refresh();
+    },
+
+    setDateState(date, state) {
+        let k = typeof date == 'object' ? ymd(date) : date;
+
+        if (!this.state) {
+            this.state = {};
+        }
+        this.state[k] = state;
     },
 
     /**
