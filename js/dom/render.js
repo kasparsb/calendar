@@ -619,6 +619,18 @@ render.prototype = {
         this.refresh();
     },
 
+    setMinDate(date) {
+        this.minDate = date ? toDate(this.minDate) : undefined;
+
+        this.refresh();
+    },
+
+    setMaxDate(date) {
+        this.maxDate = date ? toDate(this.maxDate) : undefined;
+
+        this.refresh();
+    },
+
     /**
      * Period select režīms
      *     true - būs period select režīms
